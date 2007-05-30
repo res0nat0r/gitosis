@@ -1,0 +1,6 @@
+*.py[co]
+*.egg-info
+/stage
+/.pydoctor.pickle
+/apidocs
+/gitosis/test/tmp
