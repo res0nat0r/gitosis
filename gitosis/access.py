@@ -1,3 +1,4 @@
+import logging
 from ConfigParser import NoSectionError, NoOptionError
 
 from gitosis import group
@@ -12,6 +13,16 @@ def haveAccess(config, user, mode, path):
     Returns ``None`` for no access, or the physical repository path
     for access granted to that repository.
     """
+    log = logging.getLogger('gitosis.access.haveAccess')
+
+    log.debug(
+        'Access check for %(user)r as %(mode)r on %(path)r...'
+        % dict(
+        user=user,
+        mode=mode,
+        path=path,
+        ))
+
     for groupname in group.getMembership(config=config, user=user):
         try:
             repos = config.get('group %s' % groupname, mode)
@@ -21,6 +32,13 @@ def haveAccess(config, user, mode, path):
             repos = repos.split()
 
         if path in repos:
+            log.debug(
+                'Access ok for %(user)r as %(mode)r on %(path)r'
+                % dict(
+                user=user,
+                mode=mode,
+                path=path,
+                ))
             return path
 
         try:
@@ -29,4 +47,12 @@ def haveAccess(config, user, mode, path):
         except (NoSectionError, NoOptionError):
             pass
         else:
+            log.debug(
+                'Access ok for %(user)r as %(mode)r on %(path)r=%(mapping)r'
+                % dict(
+                user=user,
+                mode=mode,
+                path=path,
+                mapping=mapping,
+                ))
             return mapping
