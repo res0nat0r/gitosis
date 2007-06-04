@@ -40,6 +40,7 @@ COMMANDS_WRITE = [
     ]
 
 def main():
+    log = logging.getLogger('gitosis.serve.main')
     os.umask(0022)
 
     parser = getParser()
@@ -52,6 +53,10 @@ def main():
     cmd = os.environ.get('SSH_ORIGINAL_COMMAND', None)
     if cmd is None:
         die("Need SSH_ORIGINAL_COMMAND in environment.")
+
+    log.debug('Got command %(cmd)r' % dict(
+        cmd=cmd,
+        ))
 
     if '\n' in cmd:
         die("Command may not contain newlines.")
@@ -94,6 +99,11 @@ def main():
         if command in COMMANDS_WRITE:
             # didn't have write access and tried to write
             die("Write access denied.")
+
+    log.debug('Serving %(command)r %(newpath)r' % dict(
+        command=command,
+        newpath=newpath,
+        ))
 
     # put the command back together with the new path
     newcmd = "%(command)s '%(newpath)s'" % dict(
