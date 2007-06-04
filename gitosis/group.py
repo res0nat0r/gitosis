@@ -1,25 +1,15 @@
 import logging
 from ConfigParser import NoSectionError, NoOptionError
 
-def getMembership(config, user, _seen=None):
-    """
-    Generate groups ``user`` is member of, according to ``config``
-
-    :type config: RawConfigParser
-    :type user: str
-    :param _seen: internal use only
-    """
+def _getMembership(config, user, seen):
     log = logging.getLogger('gitosis.group.getMembership')
-
-    if _seen is None:
-        _seen = set()
 
     for section in config.sections():
         GROUP_PREFIX = 'group '
         if not section.startswith(GROUP_PREFIX):
             continue
         group = section[len(GROUP_PREFIX):]
-        if group in _seen:
+        if group in seen:
             continue
 
         try:
@@ -34,9 +24,28 @@ def getMembership(config, user, _seen=None):
                 user=user,
                 group=group,
                 ))
-            _seen.add(group)
+            seen.add(group)
             yield group
 
-            for member_of in getMembership(config, '@%s' % group,
-                                           _seen=_seen):
+            for member_of in _getMembership(
+                config, '@%s' % group, seen,
+                ):
                 yield member_of
+
+
+def getMembership(config, user):
+    """
+    Generate groups ``user`` is member of, according to ``config``
+
+    :type config: RawConfigParser
+    :type user: str
+    :param _seen: internal use only
+    """
+
+    seen = set()
+    for member_of in _getMembership(config, user, seen):
+        yield member_of
+
+    # everyone is always a member of group "all"
+    yield 'all'
+

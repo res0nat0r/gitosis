@@ -7,12 +7,14 @@ from gitosis import group
 def test_no_emptyConfig():
     cfg = RawConfigParser()
     gen = group.getMembership(config=cfg, user='jdoe')
+    eq(gen.next(), 'all')
     assert_raises(StopIteration, gen.next)
 
 def test_no_emptyGroup():
     cfg = RawConfigParser()
     cfg.add_section('group hackers')
     gen = group.getMembership(config=cfg, user='jdoe')
+    eq(gen.next(), 'all')
     assert_raises(StopIteration, gen.next)
 
 def test_no_notListed():
@@ -20,6 +22,7 @@ def test_no_notListed():
     cfg.add_section('group hackers')
     cfg.set('group hackers', 'members', 'wsmith')
     gen = group.getMembership(config=cfg, user='jdoe')
+    eq(gen.next(), 'all')
     assert_raises(StopIteration, gen.next)
 
 def test_yes_simple():
@@ -28,6 +31,7 @@ def test_yes_simple():
     cfg.set('group hackers', 'members', 'jdoe')
     gen = group.getMembership(config=cfg, user='jdoe')
     eq(gen.next(), 'hackers')
+    eq(gen.next(), 'all')
     assert_raises(StopIteration, gen.next)
 
 def test_yes_leading():
@@ -36,6 +40,7 @@ def test_yes_leading():
     cfg.set('group hackers', 'members', 'jdoe wsmith')
     gen = group.getMembership(config=cfg, user='jdoe')
     eq(gen.next(), 'hackers')
+    eq(gen.next(), 'all')
     assert_raises(StopIteration, gen.next)
 
 def test_yes_trailing():
@@ -44,6 +49,7 @@ def test_yes_trailing():
     cfg.set('group hackers', 'members', 'wsmith jdoe')
     gen = group.getMembership(config=cfg, user='jdoe')
     eq(gen.next(), 'hackers')
+    eq(gen.next(), 'all')
     assert_raises(StopIteration, gen.next)
 
 def test_yes_middle():
@@ -52,6 +58,7 @@ def test_yes_middle():
     cfg.set('group hackers', 'members', 'wsmith jdoe danny')
     gen = group.getMembership(config=cfg, user='jdoe')
     eq(gen.next(), 'hackers')
+    eq(gen.next(), 'all')
     assert_raises(StopIteration, gen.next)
 
 def test_yes_recurse_one():
@@ -63,6 +70,7 @@ def test_yes_recurse_one():
     gen = group.getMembership(config=cfg, user='jdoe')
     eq(gen.next(), 'smackers')
     eq(gen.next(), 'hackers')
+    eq(gen.next(), 'all')
     assert_raises(StopIteration, gen.next)
 
 def test_yes_recurse_one_ordering():
@@ -74,6 +82,7 @@ def test_yes_recurse_one_ordering():
     gen = group.getMembership(config=cfg, user='jdoe')
     eq(gen.next(), 'smackers')
     eq(gen.next(), 'hackers')
+    eq(gen.next(), 'all')
     assert_raises(StopIteration, gen.next)
 
 def test_yes_recurse_three():
@@ -91,6 +100,7 @@ def test_yes_recurse_three():
     eq(gen.next(), 'snackers')
     eq(gen.next(), 'smackers')
     eq(gen.next(), 'hackers')
+    eq(gen.next(), 'all')
     assert_raises(StopIteration, gen.next)
 
 def test_yes_recurse_junk():
@@ -102,6 +112,7 @@ def test_yes_recurse_junk():
     gen = group.getMembership(config=cfg, user='jdoe')
     eq(gen.next(), 'smackers')
     eq(gen.next(), 'hackers')
+    eq(gen.next(), 'all')
     assert_raises(StopIteration, gen.next)
 
 def test_yes_recurse_loop():
@@ -113,6 +124,7 @@ def test_yes_recurse_loop():
     gen = group.getMembership(config=cfg, user='jdoe')
     eq(gen.next(), 'smackers')
     eq(gen.next(), 'hackers')
+    eq(gen.next(), 'all')
     assert_raises(StopIteration, gen.next)
 
 def test_no_recurse_loop():
@@ -122,4 +134,5 @@ def test_no_recurse_loop():
     cfg.add_section('group smackers')
     cfg.set('group smackers', 'members', '@hackers')
     gen = group.getMembership(config=cfg, user='jdoe')
+    eq(gen.next(), 'all')
     assert_raises(StopIteration, gen.next)
