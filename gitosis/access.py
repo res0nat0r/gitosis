@@ -1,4 +1,4 @@
-import logging
+import os, logging
 from ConfigParser import NoSectionError, NoOptionError
 
 from gitosis import group
@@ -31,6 +31,8 @@ def haveAccess(config, user, mode, path):
         else:
             repos = repos.split()
 
+        mapping = None
+
         if path in repos:
             log.debug(
                 'Access ok for %(user)r as %(mode)r on %(path)r'
@@ -39,20 +41,45 @@ def haveAccess(config, user, mode, path):
                 mode=mode,
                 path=path,
                 ))
-            return path
-
-        try:
-            mapping = config.get('group %s' % groupname,
-                                 'map %s %s' % (mode, path))
-        except (NoSectionError, NoOptionError):
-            pass
+            mapping = path
         else:
-            log.debug(
-                'Access ok for %(user)r as %(mode)r on %(path)r=%(mapping)r'
-                % dict(
-                user=user,
-                mode=mode,
-                path=path,
-                mapping=mapping,
-                ))
+            try:
+                mapping = config.get('group %s' % groupname,
+                                     'map %s %s' % (mode, path))
+            except (NoSectionError, NoOptionError):
+                pass
+            else:
+                log.debug(
+                    'Access ok for %(user)r as %(mode)r on %(path)r=%(mapping)r'
+                    % dict(
+                    user=user,
+                    mode=mode,
+                    path=path,
+                    mapping=mapping,
+                    ))
+
+        if mapping is not None:
+            prefix = None
+            try:
+                prefix = config.get(
+                    'group %s' % groupname, 'repositories')
+            except (NoSectionError, NoOptionError):
+                try:
+                    prefix = config.get('gitosis', 'repositories')
+                except (NoSectionError, NoOptionError):
+                    pass
+
+            if prefix is not None:
+                log.debug(
+                    'Using prefix %(prefix)r for %(path)r'
+                    % dict(
+                    prefix=prefix,
+                    path=mapping,
+                    ))
+                mapping = os.path.join(prefix, mapping)
+                log.debug(
+                    'New path is %(path)r'
+                    % dict(
+                    path=mapping,
+                    ))
             return mapping
