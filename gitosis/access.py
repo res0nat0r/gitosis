@@ -23,6 +23,16 @@ def haveAccess(config, user, mode, path):
         path=path,
         ))
 
+    basename, ext = os.path.splitext(path)
+    if ext == '.git':
+        log.debug(
+            'Stripping .git suffix from %(path)r, new value %(basename)r'
+            % dict(
+            path=path,
+            basename=basename,
+            ))
+        path = basename
+
     for groupname in group.getMembership(config=config, user=user):
         try:
             repos = config.get('group %s' % groupname, mode)

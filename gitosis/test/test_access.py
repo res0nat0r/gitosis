@@ -120,3 +120,12 @@ def test_base_local():
     eq(access.haveAccess(
         config=cfg, user='jdoe', mode='writable', path='foo/bar'),
        'some/relative/path/baz/quux/thud')
+
+def test_dotgit():
+    # a .git extension is always allowed to be added
+    cfg = RawConfigParser()
+    cfg.add_section('group fooers')
+    cfg.set('group fooers', 'members', 'jdoe')
+    cfg.set('group fooers', 'writable', 'foo/bar')
+    eq(access.haveAccess(config=cfg, user='jdoe', mode='writable', path='foo/bar.git'),
+       'foo/bar')
