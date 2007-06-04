@@ -7,15 +7,16 @@ Example configuration:
 .. include:: example.conf
    :literal:
 
-group -> list of repos
+TODO
+====
 
 /usr/local/bin/git-shell-enforce-directory
 
-check that the user account (e.g. ``git``) looks valid
+gitosis-lint: check that the user account (e.g. ``git``) looks valid
 
-ssh keys
+make git hook: update authorized_keys
 
-regenerate authorized_keys, only touching lines that look safe
+make git hook: update config file
 
 allow skipping .git suffix
 
