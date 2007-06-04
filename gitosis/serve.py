@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 """
 Enforce git-shell to only serve repositories in the given
 directory. The client should refer to them without any directory
