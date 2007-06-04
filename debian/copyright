@@ -1,0 +1,24 @@
+This package was debianized by Tommi Virtanen <tv@eagain.net> on
+Tue, 28 Aug 2007 21:32:22 -0700.
+
+It was originally downloaded from http://eagain.net/software/gitosis/
+
+Upstream Author: Tommi Virtanen <tv@eagain.net>
+
+Copyright:
+
+    Gitosis -- git repository hosting application
+    Copyright (C) 2007  Tommi Virtanen
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+On Debian Linux systems, the complete text of the GNU General Public
+License can be found in '/usr/share/common-licenses/GPL'.

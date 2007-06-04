@@ -1,0 +1,15 @@
+Source: gitosis
+Section: admin
+Priority: optional
+Maintainer: Tommi Virtanen <tv@debian.org>
+Standards-Version: 3.7.2
+Build-Depends: @cdbs@
+
+Package: gitosis
+Section: admin
+Architecture: all
+Depends: ${python:Depends}, python-setuptools
+Description: git repository hosting application
+ Manage git repositories, provide access to them over SSH, with tight
+ access control and not needing shell account.
+

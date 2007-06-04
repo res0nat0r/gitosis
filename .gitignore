@@ -4,3 +4,13 @@
 /.pydoctor.pickle
 /apidocs
 /gitosis/test/tmp
+
+# debianization
+/debian/control
+/debian/files
+/debian/*.substvars
+/debian/*.debhelper
+/debian/gitosis
+/build
+/dist
+/python-build-stamp-*
