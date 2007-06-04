@@ -16,6 +16,7 @@ setup(
         'console_scripts': [
             'gitosis-ssh = gitosis.ssh:main',
             'gitosis-serve = gitosis.serve:main',
+            'gitosis-gitweb = gitosis.gitweb:main',
             ],
         },
     )
