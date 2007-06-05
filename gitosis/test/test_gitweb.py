@@ -1,9 +1,11 @@
 from nose.tools import eq_ as eq
 
+import os
 from ConfigParser import RawConfigParser
 from cStringIO import StringIO
 
 from gitosis import gitweb
+from gitosis.test.util import mkdir, maketemp
 
 def test_projectsList_empty():
     cfg = RawConfigParser()
@@ -85,4 +87,21 @@ def test_projectsList_multiple_globalGitwebYes():
     eq(got.getvalue(), '''\
 quux
 foo%2Fbar John+Doe
+''')
+
+def test_projectsList_reallyEndsWithGit():
+    tmp = maketemp()
+    path = os.path.join(tmp, 'foo.git')
+    mkdir(path)
+    cfg = RawConfigParser()
+    cfg.add_section('gitosis')
+    cfg.set('gitosis', 'repositories', tmp)
+    cfg.add_section('repo foo')
+    cfg.set('repo foo', 'gitweb', 'yes')
+    got = StringIO()
+    gitweb.generate(
+        config=cfg,
+        fp=got)
+    eq(got.getvalue(), '''\
+foo.git
 ''')

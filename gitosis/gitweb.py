@@ -25,7 +25,7 @@ To plug this into ``gitweb``, you have two choices.
    isolates the changes a bit more nicely. Recommended.
 """
 
-import os, urllib
+import os, urllib, logging
 
 from ConfigParser import RawConfigParser, NoSectionError, NoOptionError
 
@@ -34,6 +34,16 @@ def _escape_filename(s):
     s = s.replace('$', '\\$')
     s = s.replace('"', '\\"')
     return s
+
+def _getReposityDir(config):
+    repositories = os.path.expanduser('~')
+    try:
+        path = config.get('gitosis', 'repositories')
+    except (NoSectionError, NoOptionError):
+        pass
+    else:
+        repositories = os.path.join(repositories, path)
+    return repositories
 
 def generate(config, fp):
     """
@@ -45,6 +55,10 @@ def generate(config, fp):
     :param fp: writable for ``projects.list``
     :type fp: (file-like, anything with ``.write(data)``)
     """
+    log = logging.getLogger('gitosis.access.haveAccess')
+
+    repositories = _getReposityDir(config)
+
     try:
         global_enable = config.getboolean('gitosis', 'gitweb')
     except (NoSectionError, NoOptionError):
@@ -67,6 +81,16 @@ def generate(config, fp):
             continue
 
         name, = l
+
+        if not os.path.exists(os.path.join(repositories, name)):
+            namedotgit = '%s.git' % name
+            if os.path.exists(os.path.join(repositories, namedotgit)):
+                name = namedotgit
+            else:
+                log.warning(
+                    'Cannot find %(name)r in %(repositories)r'
+                    % dict(name=name, repositories=repositories))
+
         response = [name]
         try:
             owner = config.get(section, 'owner')
