@@ -5,16 +5,7 @@ from cStringIO import StringIO
 
 from gitosis import gitweb
 
-def test_empty():
-    cfg = RawConfigParser()
-    got = StringIO()
-    gitweb.generate(
-        config=cfg,
-        fp=got)
-    eq(got.getvalue(), '''\
-''')
-
-def test_trickyFilenames():
+def test_projectsList_empty():
     cfg = RawConfigParser()
     got = StringIO()
     gitweb.generate(
