@@ -66,7 +66,15 @@ def main():
         die("Command to run looks dangerous")
 
     cfg = RawConfigParser()
-    cfg.read(options.config)
+    try:
+        conffile = file(options.config)
+    except (IOError, OSError), e:
+        # I trust the exception has the path.
+        die("Unable to read config file: %s." % e)
+    try:
+        cfg.readfp(conffile)
+    finally:
+        conffile.close()
 
     os.chdir(os.path.expanduser('~'))
 
