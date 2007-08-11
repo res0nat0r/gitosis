@@ -77,19 +77,18 @@ def haveAccess(config, user, mode, path):
                 try:
                     prefix = config.get('gitosis', 'repositories')
                 except (NoSectionError, NoOptionError):
-                    pass
+                    prefix = 'repositories'
 
-            if prefix is not None:
-                log.debug(
-                    'Using prefix %(prefix)r for %(path)r'
-                    % dict(
-                    prefix=prefix,
-                    path=mapping,
-                    ))
-                mapping = os.path.join(prefix, mapping)
-                log.debug(
-                    'New path is %(path)r'
-                    % dict(
-                    path=mapping,
-                    ))
+            log.debug(
+                'Using prefix %(prefix)r for %(path)r'
+                % dict(
+                prefix=prefix,
+                path=mapping,
+                ))
+            mapping = os.path.join(prefix, mapping)
+            log.debug(
+                'New path is %(path)r'
+                % dict(
+                path=mapping,
+                ))
             return mapping

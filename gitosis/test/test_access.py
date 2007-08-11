@@ -15,7 +15,7 @@ def test_write_yes_simple():
     cfg.set('group fooers', 'members', 'jdoe')
     cfg.set('group fooers', 'writable', 'foo/bar')
     eq(access.haveAccess(config=cfg, user='jdoe', mode='writable', path='foo/bar'),
-       'foo/bar')
+       'repositories/foo/bar')
 
 def test_write_no_simple_wouldHaveReadonly():
     cfg = RawConfigParser()
@@ -31,7 +31,7 @@ def test_write_yes_map():
     cfg.set('group fooers', 'members', 'jdoe')
     cfg.set('group fooers', 'map writable foo/bar', 'quux/thud')
     eq(access.haveAccess(config=cfg, user='jdoe', mode='writable', path='foo/bar'),
-       'quux/thud')
+       'repositories/quux/thud')
 
 def test_write_no_map_wouldHaveReadonly():
     cfg = RawConfigParser()
@@ -52,7 +52,7 @@ def test_read_yes_simple():
     cfg.set('group fooers', 'members', 'jdoe')
     cfg.set('group fooers', 'readonly', 'foo/bar')
     eq(access.haveAccess(config=cfg, user='jdoe', mode='readonly', path='foo/bar'),
-       'foo/bar')
+       'repositories/foo/bar')
 
 def test_read_yes_simple_wouldHaveWritable():
     cfg = RawConfigParser()
@@ -68,7 +68,7 @@ def test_read_yes_map():
     cfg.set('group fooers', 'members', 'jdoe')
     cfg.set('group fooers', 'map readonly foo/bar', 'quux/thud')
     eq(access.haveAccess(config=cfg, user='jdoe', mode='readonly', path='foo/bar'),
-       'quux/thud')
+       'repositories/quux/thud')
 
 def test_read_yes_map_wouldHaveWritable():
     cfg = RawConfigParser()
@@ -111,6 +111,16 @@ def test_base_global_relative_simple():
         config=cfg, user='jdoe', mode='readonly', path='xyzzy'),
        'some/relative/path/xyzzy')
 
+def test_base_global_unset():
+    cfg = RawConfigParser()
+    cfg.add_section('gitosis')
+    cfg.add_section('group fooers')
+    cfg.set('group fooers', 'members', 'jdoe')
+    cfg.set('group fooers', 'readonly', 'foo xyzzy bar')
+    eq(access.haveAccess(
+        config=cfg, user='jdoe', mode='readonly', path='xyzzy'),
+       'repositories/xyzzy')
+
 def test_base_local():
     cfg = RawConfigParser()
     cfg.add_section('group fooers')
@@ -128,4 +138,4 @@ def test_dotgit():
     cfg.set('group fooers', 'members', 'jdoe')
     cfg.set('group fooers', 'writable', 'foo/bar')
     eq(access.haveAccess(config=cfg, user='jdoe', mode='writable', path='foo/bar.git'),
-       'foo/bar')
+       'repositories/foo/bar')
