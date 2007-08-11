@@ -102,7 +102,7 @@ def main():
             path=path)
 
         if newpath is None:
-            die("Access denied.")
+            die("Read access denied.")
 
         if command in COMMANDS_WRITE:
             # didn't have write access and tried to write
