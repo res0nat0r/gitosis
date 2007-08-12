@@ -118,5 +118,5 @@ def main():
         command=command,
         newpath=newpath,
         )
-    os.execve('/usr/bin/git-shell', ['git-shell', '-c', newcmd], {})
+    os.execvpe('git-shell', ['git-shell', '-c', newcmd], {})
     die("Cannot execute git-shell.")
