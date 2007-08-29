@@ -40,7 +40,7 @@ def _getReposityDir(config):
     try:
         path = config.get('gitosis', 'repositories')
     except (NoSectionError, NoOptionError):
-        pass
+        repositories = os.path.join(repositories, 'repositories')
     else:
         repositories = os.path.join(repositories, path)
     return repositories
