@@ -35,7 +35,7 @@ def _escape_filename(s):
     s = s.replace('"', '\\"')
     return s
 
-def _getReposityDir(config):
+def _getRepositoryDir(config):
     repositories = os.path.expanduser('~')
     try:
         path = config.get('gitosis', 'repositories')
@@ -57,7 +57,7 @@ def generate(config, fp):
     """
     log = logging.getLogger('gitosis.access.haveAccess')
 
-    repositories = _getReposityDir(config)
+    repositories = _getRepositoryDir(config)
 
     try:
         global_enable = config.getboolean('gitosis', 'gitweb')
