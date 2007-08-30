@@ -16,3 +16,20 @@ def maketemp():
     tmp = os.path.join(tmp, me)
     mkdir(tmp)
     return tmp
+
+def writeFile(path, content):
+    tmp = '%s.tmp' % path
+    f = file(tmp, 'w')
+    try:
+        f.write(content)
+    finally:
+        f.close()
+    os.rename(tmp, path)
+
+def readFile(path):
+    f = file(path)
+    try:
+        data = f.read()
+    finally:
+        f.close()
+    return data

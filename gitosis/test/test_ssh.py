@@ -4,16 +4,7 @@ import os
 from cStringIO import StringIO
 
 from gitosis import ssh
-from gitosis.test.util import mkdir, maketemp
-
-def writeFile(path, content):
-    tmp = '%s.tmp' % path
-    f = file(tmp, 'w')
-    try:
-        f.write(content)
-    finally:
-        f.close()
-    os.rename(tmp, path)
+from gitosis.test.util import mkdir, maketemp, writeFile, readFile
 
 def _key(s):
     return ''.join(s.split('\n')).strip()
@@ -174,12 +165,7 @@ baz
         ssh.writeAuthorizedKeys(
             path=path, keydir=keydir)
 
-        f = file(path)
-        try:
-            got = f.read()
-        finally:
-            f.close()
-
+        got = readFile(path)
         eq(got, '''\
 # foo
 bar
