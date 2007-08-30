@@ -14,9 +14,9 @@ To plug this into ``gitweb``, you have two choices.
 	do "/etc/gitweb.conf" if -e "/etc/gitweb.conf";
 	$projects_list = "/path/to/your/projects.list";
         # see ``repositories`` in the ``gitosis`` section
-        # of ``~/.gitosis.conf``; usually ``~/repos``
+        # of ``~/.gitosis.conf``; usually ``~/repositories``
         # but you need to expand the tilde here
-	$projectroot = "/path/to/your/repos";
+	$projectroot = "/path/to/your/repositories";
 
    Then in your web server, set environment variable ``GITWEB_CONFIG``
    to point to this file.
