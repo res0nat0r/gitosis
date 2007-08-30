@@ -11,5 +11,5 @@ Architecture: all
 Depends: ${python:Depends}, python-setuptools
 Description: git repository hosting application
  Manage git repositories, provide access to them over SSH, with tight
- access control and not needing shell account.
+ access control and not needing shell accounts.
 
