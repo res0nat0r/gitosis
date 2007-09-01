@@ -21,9 +21,11 @@ def test_init_simple():
 def test_init_exist_dir():
     tmp = maketemp()
     path = os.path.join(tmp, 'repo.git')
-    mkdir(path)
+    mkdir(path, 0710)
+    check_mode(path, 0710, is_dir=True)
     repository.init(path)
-    check_mode(path, 0750, is_dir=True)
+    # my weird access mode is preserved
+    check_mode(path, 0710, is_dir=True)
     check_bare(path)
 
 def test_init_exist_git():
