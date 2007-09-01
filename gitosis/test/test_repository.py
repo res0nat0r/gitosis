@@ -1,7 +1,6 @@
 from nose.tools import eq_ as eq
 
 import os
-import shutil
 
 from gitosis import repository
 
@@ -39,8 +38,6 @@ def test_init_exist_git():
 def test_init_templates():
     tmp = maketemp()
     path = os.path.join(tmp, 'repo.git')
-    if os.path.exists(path):
-        shutil.rmtree(path)
     templatedir = os.path.join(
         os.path.dirname(__file__),
         'mocktemplates',

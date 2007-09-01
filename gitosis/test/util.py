@@ -2,7 +2,9 @@ from nose.tools import eq_ as eq
 
 import errno
 import os
+import shutil
 import stat
+import sys
 
 def mkdir(*a, **kw):
     try:
@@ -16,9 +18,21 @@ def mkdir(*a, **kw):
 def maketemp():
     tmp = os.path.join(os.path.dirname(__file__), 'tmp')
     mkdir(tmp)
-    me = os.path.splitext(os.path.basename(__file__))[0]
-    tmp = os.path.join(tmp, me)
-    mkdir(tmp)
+
+    caller = sys._getframe(1)
+    name = '%s.%s' % (
+        sys._getframe(1).f_globals['__name__'],
+        caller.f_code.co_name,
+        )
+    tmp = os.path.join(tmp, name)
+    try:
+        shutil.rmtree(tmp)
+    except OSError, e:
+        if e.errno == errno.ENOENT:
+            pass
+        else:
+            raise
+    os.mkdir(tmp)
     return tmp
 
 def writeFile(path, content):
