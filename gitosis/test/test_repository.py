@@ -1,12 +1,11 @@
 from nose.tools import eq_ as eq
 
 import os
-import stat
 import shutil
 
 from gitosis import repository
 
-from gitosis.test.util import mkdir, maketemp, readFile
+from gitosis.test.util import mkdir, maketemp, readFile, check_mode
 
 def check_bare(path):
     # we want it to be a bare repository
@@ -16,9 +15,7 @@ def test_init_simple():
     tmp = maketemp()
     path = os.path.join(tmp, 'repo.git')
     repository.init(path)
-    st = os.stat(path)
-    assert stat.S_ISDIR(st.st_mode)
-    eq(stat.S_IMODE(st.st_mode), 0750)
+    check_mode(path, 0750, is_dir=True)
     check_bare(path)
 
 def test_init_exist_dir():
@@ -26,9 +23,7 @@ def test_init_exist_dir():
     path = os.path.join(tmp, 'repo.git')
     mkdir(path)
     repository.init(path)
-    st = os.stat(path)
-    assert stat.S_ISDIR(st.st_mode)
-    eq(stat.S_IMODE(st.st_mode), 0750)
+    check_mode(path, 0750, is_dir=True)
     check_bare(path)
 
 def test_init_exist_git():
@@ -36,9 +31,7 @@ def test_init_exist_git():
     path = os.path.join(tmp, 'repo.git')
     repository.init(path)
     repository.init(path)
-    st = os.stat(path)
-    assert stat.S_ISDIR(st.st_mode)
-    eq(stat.S_IMODE(st.st_mode), 0750)
+    check_mode(path, 0750, is_dir=True)
     check_bare(path)
 
 def test_init_templates():
@@ -54,9 +47,11 @@ def test_init_templates():
     repository.init(path)
     got = readFile(os.path.join(path, 'no-confusion'))
     eq(got, 'i should show up\n')
-    st = os.stat(os.path.join(path, 'hooks', 'post-update'))
-    assert stat.S_ISREG(st.st_mode)
-    eq('%04o'%stat.S_IMODE(st.st_mode), '%04o'%0755)
+    check_mode(
+        os.path.join(path, 'hooks', 'post-update'),
+        0755,
+        is_file=True,
+        )
     got = readFile(os.path.join(path, 'hooks', 'post-update'))
     eq(got, '#!/bin/sh\n# i can override standard templates\n')
     # standard templates are there, too

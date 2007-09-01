@@ -1,4 +1,8 @@
-import os, errno
+from nose.tools import eq_ as eq
+
+import errno
+import os
+import stat
 
 def mkdir(*a, **kw):
     try:
@@ -33,3 +37,13 @@ def readFile(path):
     finally:
         f.close()
     return data
+
+def check_mode(path, mode, is_file=None, is_dir=None):
+    st = os.stat(path)
+    if is_dir:
+        assert stat.S_ISDIR(st.st_mode)
+    if is_file:
+        assert stat.S_ISREG(st.st_mode)
+
+    got = stat.S_IMODE(st.st_mode)
+    eq(got, mode, 'File mode %04o!=%04o for %s' % (got, mode, path))
