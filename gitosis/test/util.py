@@ -1,8 +1,8 @@
 import os, errno
 
-def mkdir(path):
+def mkdir(*a, **kw):
     try:
-        os.mkdir(path)
+        os.mkdir(*a, **kw)
     except OSError, e:
         if e.errno == errno.EEXIST:
             pass
