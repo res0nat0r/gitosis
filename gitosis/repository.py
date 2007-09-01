@@ -1,15 +1,7 @@
-import errno
 import os
 import subprocess
 
-def _mkdir(*a, **kw):
-    try:
-        os.mkdir(*a, **kw)
-    except OSError, e:
-        if e.errno == errno.EEXIST:
-            pass
-        else:
-            raise
+from gitosis import util
 
 def init(
     path,
@@ -19,7 +11,7 @@ def init(
     if _git is None:
         _git = 'git'
 
-    _mkdir(path, 0750)
+    util.mkdir(path, 0750)
     args = [_git, 'init']
     if template is not None:
         args.append('--template=%s' % template)

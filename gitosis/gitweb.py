@@ -29,21 +29,13 @@ import os, urllib, logging
 
 from ConfigParser import RawConfigParser, NoSectionError, NoOptionError
 
+from gitosis import util
+
 def _escape_filename(s):
     s = s.replace('\\', '\\\\')
     s = s.replace('$', '\\$')
     s = s.replace('"', '\\"')
     return s
-
-def _getRepositoryDir(config):
-    repositories = os.path.expanduser('~')
-    try:
-        path = config.get('gitosis', 'repositories')
-    except (NoSectionError, NoOptionError):
-        repositories = os.path.join(repositories, 'repositories')
-    else:
-        repositories = os.path.join(repositories, path)
-    return repositories
 
 def generate(config, fp):
     """
@@ -57,7 +49,7 @@ def generate(config, fp):
     """
     log = logging.getLogger('gitosis.access.haveAccess')
 
-    repositories = _getRepositoryDir(config)
+    repositories = util.getRepositoryDir(config)
 
     try:
         global_enable = config.getboolean('gitosis', 'gitweb')
