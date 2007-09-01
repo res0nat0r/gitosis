@@ -6,7 +6,7 @@ import shutil
 
 from gitosis import repository
 
-from gitosis.test.util import mkdir, maketemp, writeFile, readFile
+from gitosis.test.util import mkdir, maketemp, readFile
 
 def check_bare(path):
     # we want it to be a bare repository
