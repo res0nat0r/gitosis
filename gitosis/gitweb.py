@@ -37,7 +37,7 @@ def _escape_filename(s):
     s = s.replace('"', '\\"')
     return s
 
-def generate(config, fp):
+def generate_fp(config, fp):
     """
     Generate a config file and projects list for ``gitweb``.
 
@@ -94,6 +94,26 @@ def generate(config, fp):
         line = ' '.join([urllib.quote_plus(s) for s in response])
         print >>fp, line
 
+def generate(config, path):
+    """
+    Generate a config file and projects list for ``gitweb``.
+
+    :param config: configuration to read projects from
+    :type config: RawConfigParser
+
+    :param path: path to write projects list to
+    :type path: str
+    """
+    tmp = '%s.%d.tmp' % (path, os.getpid())
+
+    f = file(tmp, 'w')
+    try:
+        generate_fp(config=config, fp=f)
+    finally:
+        f.close()
+
+    os.rename(tmp, path)
+
 def _getParser():
     import optparse
     parser = optparse.OptionParser(
@@ -120,12 +140,4 @@ def main():
     cfg = RawConfigParser()
     cfg.read(options.config)
 
-    tmp = '%s.%d.tmp' % (path, os.getpid())
-
-    f = file(tmp, 'w')
-    try:
-        generate(config=cfg, fp=f)
-    finally:
-        f.close()
-
-    os.rename(tmp, path)
+    generate(config=cfg, path=path)
