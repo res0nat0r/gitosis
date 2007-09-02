@@ -136,5 +136,23 @@ def test_push_inits_if_needed():
         user='jdoe',
         command="git-receive-pack 'foo'",
         )
-    eq(os.listdir(tmp), ['foo'])
-    assert os.path.isfile(os.path.join(tmp, 'foo', 'HEAD'))
+    eq(os.listdir(tmp), ['foo.git'])
+    assert os.path.isfile(os.path.join(tmp, 'foo.git', 'HEAD'))
+
+def test_push_inits_if_needed_haveExtension():
+    # a push to a non-existent repository (but where config authorizes
+    # you to do that) will create the repository on the fly
+    tmp = util.maketemp()
+    cfg = RawConfigParser()
+    cfg.add_section('gitosis')
+    cfg.set('gitosis', 'repositories', tmp)
+    cfg.add_section('group foo')
+    cfg.set('group foo', 'members', 'jdoe')
+    cfg.set('group foo', 'writable', 'foo')
+    got = serve.serve(
+        cfg=cfg,
+        user='jdoe',
+        command="git-receive-pack 'foo.git'",
+        )
+    eq(os.listdir(tmp), ['foo.git'])
+    assert os.path.isfile(os.path.join(tmp, 'foo.git', 'HEAD'))

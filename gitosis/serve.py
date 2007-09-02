@@ -112,7 +112,10 @@ def serve(
         # it doesn't exist on the filesystem, but the configuration
         # refers to it, we're serving a write request, and the user is
         # authorized to do that: create the repository on the fly
-        repository.init(path=newpath)
+        assert not newpath.endswith('.git'), \
+            'git extension should have been stripped: %r' % newpath
+        repopath = '%s.git' % newpath
+        repository.init(path=repopath)
 
     # put the verb back together with the new path
     newcmd = "%(verb)s '%(newpath)s'" % dict(
