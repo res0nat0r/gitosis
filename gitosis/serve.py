@@ -10,6 +10,7 @@ import sys, os, optparse, re
 from ConfigParser import RawConfigParser
 
 from gitosis import access
+from gitosis import repository
 
 def die(msg):
     print >>sys.stderr, '%s: %s' % (sys.argv[0], msg)
@@ -105,6 +106,13 @@ def serve(
         if verb in COMMANDS_WRITE:
             # didn't have write access and tried to write
             raise WriteAccessDenied()
+
+    if (not os.path.exists(newpath)
+        and verb in COMMANDS_WRITE):
+        # it doesn't exist on the filesystem, but the configuration
+        # refers to it, we're serving a write request, and the user is
+        # authorized to do that: create the repository on the fly
+        repository.init(path=newpath)
 
     # put the verb back together with the new path
     newcmd = "%(verb)s '%(newpath)s'" % dict(
