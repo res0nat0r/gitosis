@@ -17,6 +17,7 @@ setup(
             'gitosis-ssh = gitosis.ssh:main',
             'gitosis-serve = gitosis.serve:main',
             'gitosis-gitweb = gitosis.gitweb:main',
+            'gitosis-run-hook = gitosis.run_hook:main',
             ],
         },
     )
