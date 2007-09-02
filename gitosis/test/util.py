@@ -52,6 +52,19 @@ def readFile(path):
         f.close()
     return data
 
+def assert_raises(excClass, callableObj, *args, **kwargs):
+    """
+    Like unittest.TestCase.assertRaises, but returns the exception.
+    """
+    try:
+        callableObj(*args, **kwargs)
+    except excClass, e:
+        return e
+    else:
+        if hasattr(excClass,'__name__'): excName = excClass.__name__
+        else: excName = str(excClass)
+        raise AssertionError("%s not raised" % excName)
+
 def check_mode(path, mode, is_file=None, is_dir=None):
     st = os.stat(path)
     if is_dir:

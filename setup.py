@@ -18,6 +18,7 @@ setup(
             'gitosis-serve = gitosis.serve:main',
             'gitosis-gitweb = gitosis.gitweb:main',
             'gitosis-run-hook = gitosis.run_hook:main',
+            'gitosis-init = gitosis.init:main',
             ],
         },
     )

@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 
 from gitosis import util
@@ -119,3 +120,28 @@ def export(git_dir, path):
         )
     if returncode != 0:
         raise GitCheckoutIndexError('exit status %d' % returncode)
+
+class GitHasInitialCommitError(GitError):
+    """Check for initial commit failed"""
+
+class GitRevParseError(GitError):
+    """rev-parse failed"""
+
+def has_initial_commit(git_dir):
+    child = subprocess.Popen(
+        args=['git', 'rev-parse', 'HEAD'],
+        cwd=git_dir,
+        stdout=subprocess.PIPE,
+        close_fds=True,
+        env=dict(GIT_DIR='.'),
+        )
+    got = child.stdout.read()
+    returncode = child.wait()
+    if returncode != 0:
+        raise GitRevParseError('exit status %d' % returncode)
+    if got == 'HEAD\n':
+        return False
+    elif re.match('^[0-9a-f]{40}\n$', got):
+        return True
+    else:
+        raise GitHasInitialCommitError('Unknown git HEAD: %r' % got)

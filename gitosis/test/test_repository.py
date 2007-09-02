@@ -6,6 +6,7 @@ import subprocess
 from gitosis import repository
 
 from gitosis.test.util import mkdir, maketemp, readFile, check_mode
+from gitosis.test.util import assert_raises
 
 def check_bare(path):
     # we want it to be a bare repository
@@ -102,3 +103,30 @@ Frobitz the quux and eschew obfuscation.
     eq(got[5], '')
     eq(got[6], 'Frobitz the quux and eschew obfuscation.')
     eq(got[7:], [])
+
+def test_has_initial_commit_fail_notAGitDir():
+    tmp = maketemp()
+    e = assert_raises(
+        repository.GitRevParseError,
+        repository.has_initial_commit,
+        git_dir=tmp)
+    eq(str(e), 'rev-parse failed: exit status 128')
+
+def test_has_initial_commit_no():
+    tmp = maketemp()
+    repository.init(path=tmp)
+    got = repository.has_initial_commit(git_dir=tmp)
+    eq(got, False)
+
+def test_has_initial_commit_yes():
+    tmp = maketemp()
+    repository.init(path=tmp)
+    repository.fast_import(
+        git_dir=tmp,
+        commit_msg='fakecommit',
+        committer='John Doe <jdoe@example.com>',
+        files=[],
+        )
+    got = repository.has_initial_commit(git_dir=tmp)
+    eq(got, True)
+
