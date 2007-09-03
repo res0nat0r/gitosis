@@ -56,13 +56,13 @@ class UnsafeArgumentsError(ServingError):
     """Arguments to command look dangerous"""
 
 class AccessDenied(ServingError):
-    """Access denied"""
+    """Access denied to repository"""
 
 class WriteAccessDenied(AccessDenied):
-    """Write access denied"""
+    """Repository write access denied"""
 
 class ReadAccessDenied(AccessDenied):
-    """Read access denied"""
+    """Repository read access denied"""
 
 def serve(
     cfg,

@@ -54,7 +54,7 @@ def test_bad_forbiddenCommand_read():
         user='jdoe',
         command="git-upload-pack 'foo'",
         )
-    eq(str(e), 'Read access denied')
+    eq(str(e), 'Repository read access denied')
     assert isinstance(e, serve.AccessDenied)
     assert isinstance(e, serve.ServingError)
 
@@ -69,7 +69,7 @@ def test_bad_forbiddenCommand_write_noAccess():
         )
     # error message talks about read in an effort to make it more
     # obvious that jdoe doesn't have *even* read access
-    eq(str(e), 'Read access denied')
+    eq(str(e), 'Repository read access denied')
     assert isinstance(e, serve.AccessDenied)
     assert isinstance(e, serve.ServingError)
 
@@ -85,7 +85,7 @@ def test_bad_forbiddenCommand_write_readAccess():
         user='jdoe',
         command="git-receive-pack 'foo'",
         )
-    eq(str(e), 'Write access denied')
+    eq(str(e), 'Repository write access denied')
     assert isinstance(e, serve.AccessDenied)
     assert isinstance(e, serve.ServingError)
 
