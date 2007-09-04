@@ -49,7 +49,6 @@ domain). You may choose another location. Adjust to suit and run::
 
 	sudo adduser \
 	    --system \
-            --no-create-home \
 	    --shell /bin/sh \
 	    --gecos 'git version control' \
 	    --group \
