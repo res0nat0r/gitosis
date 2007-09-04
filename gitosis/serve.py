@@ -93,14 +93,14 @@ def serve(
             # didn't have write access and tried to write
             raise WriteAccessDenied()
 
-    if (not os.path.exists(newpath)
+    assert not newpath.endswith('.git'), \
+           'git extension should have been stripped: %r' % newpath
+    repopath = '%s.git' % newpath
+    if (not os.path.exists(repopath)
         and verb in COMMANDS_WRITE):
         # it doesn't exist on the filesystem, but the configuration
         # refers to it, we're serving a write request, and the user is
         # authorized to do that: create the repository on the fly
-        assert not newpath.endswith('.git'), \
-            'git extension should have been stripped: %r' % newpath
-        repopath = '%s.git' % newpath
         repository.init(path=repopath)
 
     # put the verb back together with the new path

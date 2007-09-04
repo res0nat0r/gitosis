@@ -143,7 +143,7 @@ def test_push_inits_if_needed():
     cfg.add_section('group foo')
     cfg.set('group foo', 'members', 'jdoe')
     cfg.set('group foo', 'writable', 'foo')
-    got = serve.serve(
+    serve.serve(
         cfg=cfg,
         user='jdoe',
         command="git-receive-pack 'foo'",
@@ -161,10 +161,31 @@ def test_push_inits_if_needed_haveExtension():
     cfg.add_section('group foo')
     cfg.set('group foo', 'members', 'jdoe')
     cfg.set('group foo', 'writable', 'foo')
-    got = serve.serve(
+    serve.serve(
         cfg=cfg,
         user='jdoe',
         command="git-receive-pack 'foo.git'",
         )
     eq(os.listdir(tmp), ['foo.git'])
     assert os.path.isfile(os.path.join(tmp, 'foo.git', 'HEAD'))
+
+def test_push_inits_if_needed_existsWithExtension():
+    tmp = util.maketemp()
+    os.mkdir(os.path.join(tmp, 'foo.git'))
+    cfg = RawConfigParser()
+    cfg.add_section('gitosis')
+    cfg.set('gitosis', 'repositories', tmp)
+    cfg.add_section('group foo')
+    cfg.set('group foo', 'members', 'jdoe')
+    cfg.set('group foo', 'writable', 'foo')
+    serve.serve(
+        cfg=cfg,
+        user='jdoe',
+        command="git-receive-pack 'foo'",
+        )
+    eq(os.listdir(tmp), ['foo.git'])
+    # it should *not* have HEAD here as we just mkdirred it and didn't
+    # create it properly, and the mock repo didn't have anything in
+    # it.. having HEAD implies serve ran git init, which is supposed
+    # to be unnecessary here
+    eq(os.listdir(os.path.join(tmp, 'foo.git')), [])
