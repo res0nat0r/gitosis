@@ -135,6 +135,7 @@ class Main(app.App):
             user=user,
             )
         log.info('Running post-update hook...')
+        util.mkdir(os.path.expanduser('~/.ssh'), 0700)
         run_hook.post_update(cfg=cfg, git_dir=admin_repository)
         log.info('Symlinking ~/.gitosis.conf to repository...')
         symlink_config(git_dir=admin_repository)
