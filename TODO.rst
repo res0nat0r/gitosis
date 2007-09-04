@@ -64,3 +64,13 @@
 
 - gitosis-run-hook has to be in PATH and PYTHONPATH before you can
   push to gitosis-admin.git
+
+- make generated gitosis.conf read-only to discourage editing
+
+- maybe postprocess gitosis.conf to have a "# DO NOT EDIT" header?
+
+- setuptools 0.6a9 will have a non-executeable post-update hook,
+  this will make gitosis-admin settings not update
+  (fixed in 0.6c5, maybe earlier)
+
+- git enhancement: "git init" should output to stderr, not to stdout
