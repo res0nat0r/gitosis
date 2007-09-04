@@ -122,7 +122,7 @@ it::
 	git init
 	git remote add myserver git@MYSERVER:myproject.git
 	# do some work, git add and commit files
-	git push myserver master:master
+	git push myserver master:refs/heads/master
 
 That's it. If you now add others to ``members``, they can use that
 repository too.
