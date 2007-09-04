@@ -4,6 +4,7 @@
 /.pydoctor.pickle
 /apidocs
 /gitosis/test/tmp
+/.coverage
 
 # debianization
 /debian/control
