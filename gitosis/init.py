@@ -25,7 +25,7 @@ def read_ssh_pubkey(fp=None):
     line = fp.readline()
     return line
 
-_ACCEPTABLE_USER_RE = re.compile(r'^[a-z][a-z0-9]*@[a-z][a-z0-9]*$')
+_ACCEPTABLE_USER_RE = re.compile(r'^[a-z][a-z0-9]*(@[a-z][a-z0-9.-]*)?$')
 
 class InsecureSSHKeyUsername(Exception):
     """Username contains not allowed characters"""

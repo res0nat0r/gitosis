@@ -18,6 +18,33 @@ def test_ssh_extract_user_simple():
         +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= fakeuser@fakehost')
     eq(got, 'fakeuser@fakehost')
 
+def test_ssh_extract_user_domain():
+    got = init.ssh_extract_user(
+        'ssh-somealgo '
+        +'0123456789ABCDEFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= fakeuser@fakehost.example.com')
+    eq(got, 'fakeuser@fakehost.example.com')
+
+def test_ssh_extract_user_domain_dashes():
+    got = init.ssh_extract_user(
+        'ssh-somealgo '
+        +'0123456789ABCDEFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= fakeuser@ridiculously-long.example.com')
+    eq(got, 'fakeuser@ridiculously-long.example.com')
+
+def test_ssh_extract_user_no_at():
+    got = init.ssh_extract_user(
+        'ssh-somealgo '
+        +'0123456789ABCDEFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= fakeuser')
+    eq(got, 'fakeuser')
+
 def test_ssh_extract_user_bad():
     e = assert_raises(
         init.InsecureSSHKeyUsername,
