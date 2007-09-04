@@ -24,6 +24,18 @@ setup(
     author = "Tommi Virtanen",
     author_email = "tv@eagain.net",
     description = "software for hosting git repositories",
+    long_description = """
+
+Manage git repositories, provide access to them over SSH, with tight
+access control and not needing shell accounts.
+
+gitosis aims to make hosting git repos easier and safer. It manages
+multiple repositories under one user account, using SSH keys to
+identify users. End users do not need shell accounts on the server,
+they will talk to one shared account that will not let them run
+arbitrary commands.
+
+""".strip(),
     license = "GPL",
     keywords = "git scm version-control ssh",
     url = "http://eagain.net/software/gitosis/",
