@@ -13,7 +13,7 @@
 	Basic usage should be very reliable -- the project has been
 	hosting itself for a long time. Any help is welcome.
 
-``gitosis`` aims to make hosting ``git`` repos easier and safer.  It
+``gitosis`` aims to make hosting ``git`` repos easier and safer. It
 manages multiple repositories under one user account, using SSH keys
 to identify users. End users do not need shell accounts on the server,
 they will talk to one shared account that will not let them run
