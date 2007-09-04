@@ -53,5 +53,8 @@ arbitrary commands.
         # to include things recursively
         'gitosis.templates': subdir_contents('gitosis/templates'),
     },
+
+    # templates need to be a real directory, for git init
+    zip_safe=False,
     )
 
