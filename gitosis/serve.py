@@ -54,7 +54,11 @@ def serve(
     if '\n' in command:
         raise CommandMayNotContainNewlineError()
 
-    verb, args = command.split(None, 1)
+    try:
+        verb, args = command.split(None, 1)
+    except ValueError:
+        # all known commands take one argument; improve if/when needed
+        raise UnknownCommandError()
 
     if (verb not in COMMANDS_WRITE
         and verb not in COMMANDS_READONLY):

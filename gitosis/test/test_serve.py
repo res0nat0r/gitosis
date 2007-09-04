@@ -21,6 +21,18 @@ def test_bad_newLine():
     eq(str(e), 'Command may not contain newline')
     assert isinstance(e, serve.ServingError)
 
+def test_bad_nospace():
+    cfg = RawConfigParser()
+    e = assert_raises(
+        serve.UnknownCommandError,
+        serve.serve,
+        cfg=cfg,
+        user='jdoe',
+        command='git-upload-pack',
+        )
+    eq(str(e), 'Unknown command denied')
+    assert isinstance(e, serve.ServingError)
+
 def test_bad_command():
     cfg = RawConfigParser()
     e = assert_raises(
