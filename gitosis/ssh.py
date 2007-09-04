@@ -77,28 +77,3 @@ def writeAuthorizedKeys(path, keydir):
         if in_ is not None:
             in_.close()
     os.rename(tmp, path)
-
-def _getParser():
-    import optparse
-    parser = optparse.OptionParser(
-        usage="%prog [--authkeys=FILE] KEYDIR")
-    parser.set_defaults(
-        authkeys=os.path.expanduser('~/.ssh/authorized_keys'),
-        )
-    parser.add_option(
-        "--authkeys",
-        help="path to SSH authorized keys file")
-    return parser
-
-def main():
-    parser = _getParser()
-    (options, args) = parser.parse_args()
-
-    if len(args) != 1:
-        parser.error('Need one argument on the command line.')
-
-    keydir, = args
-
-    writeAuthorizedKeys(
-        path=options.authkeys,
-        keydir=keydir)

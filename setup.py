@@ -30,11 +30,9 @@ setup(
 
     entry_points = {
         'console_scripts': [
-            'gitosis-ssh = gitosis.ssh:main',
-            'gitosis-serve = gitosis.serve:main',
-            'gitosis-gitweb = gitosis.gitweb:main',
-            'gitosis-run-hook = gitosis.run_hook:main',
-            'gitosis-init = gitosis.init:main',
+            'gitosis-serve = gitosis.serve:Main.run',
+            'gitosis-run-hook = gitosis.run_hook:Main.run',
+            'gitosis-init = gitosis.init:Main.run',
             ],
         },
 

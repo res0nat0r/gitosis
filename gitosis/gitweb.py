@@ -27,7 +27,7 @@ To plug this into ``gitweb``, you have two choices.
 
 import os, urllib, logging
 
-from ConfigParser import RawConfigParser, NoSectionError, NoOptionError
+from ConfigParser import NoSectionError, NoOptionError
 
 from gitosis import util
 
@@ -113,31 +113,3 @@ def generate(config, path):
         f.close()
 
     os.rename(tmp, path)
-
-def _getParser():
-    import optparse
-    parser = optparse.OptionParser(
-        usage="%prog [--config=FILE] PROJECTSLIST")
-    parser.set_defaults(
-        config=os.path.expanduser('~/.gitosis.conf'),
-        )
-    parser.add_option('--config',
-                      metavar='FILE',
-                      help='read config from FILE (default %s)'
-                      % parser.defaults['config'],
-                      )
-    return parser
-
-def main():
-    parser = _getParser()
-    (options, args) = parser.parse_args()
-
-    if len(args) != 1:
-        parser.error('Expected one command line argument.')
-
-    path, = args
-
-    cfg = RawConfigParser()
-    cfg.read(options.config)
-
-    generate(config=cfg, path=path)

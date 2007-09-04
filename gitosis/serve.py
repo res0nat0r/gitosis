@@ -6,29 +6,11 @@ prefix. Repository names are forced to match ALLOW_RE.
 
 import logging
 
-import sys, os, optparse, re
-from ConfigParser import RawConfigParser
+import sys, os, re
 
 from gitosis import access
 from gitosis import repository
-
-def die(msg):
-    print >>sys.stderr, '%s: %s' % (sys.argv[0], msg)
-    sys.exit(1)
-
-def getParser():
-    parser = optparse.OptionParser(
-        usage='%prog [--config=FILE] USER',
-        description='Allow restricted git operations under DIR',
-        )
-    parser.set_defaults(
-        config=os.path.expanduser('~/.gitosis.conf'),
-        )
-    parser.add_option('--config',
-                      metavar='FILE',
-                      help='read config from FILE',
-                      )
-    return parser
+from gitosis import app
 
 ALLOW_RE = re.compile("^'(?P<path>[a-zA-Z0-9][a-zA-Z0-9@._-]*(/[a-zA-Z0-9][a-zA-Z0-9@._-]*)*)'$")
 
@@ -124,48 +106,45 @@ def serve(
         )
     return newcmd
 
-def main():
-    logging.basicConfig(level=logging.DEBUG)
-    log = logging.getLogger('gitosis.serve.main')
-    os.umask(0022)
+class Main(app.App):
+    def create_parser(self):
+        parser = super(Main, self).create_parser()
+        parser.set_usage('%prog [OPTS] USER')
+        parser.set_description(
+            'Allow restricted git operations under DIR')
+        return parser
 
-    parser = getParser()
-    (options, args) = parser.parse_args()
-    try:
-        (user,) = args
-    except ValueError:
-        parser.error('Missing argument USER.')
+    def handle_args(self, parser, cfg, options, args):
+        try:
+            (user,) = args
+        except ValueError:
+            parser.error('Missing argument USER.')
 
-    cmd = os.environ.get('SSH_ORIGINAL_COMMAND', None)
-    if cmd is None:
-        die("Need SSH_ORIGINAL_COMMAND in environment.")
+        log = logging.getLogger('gitosis.serve.main')
+        os.umask(0022)
 
-    log.debug('Got command %(cmd)r' % dict(
-        cmd=cmd,
-        ))
+        cmd = os.environ.get('SSH_ORIGINAL_COMMAND', None)
+        if cmd is None:
+            log.error('Need SSH_ORIGINAL_COMMAND in environment.')
+            sys.exit(1)
 
-    cfg = RawConfigParser()
-    try:
-        conffile = file(options.config)
-    except (IOError, OSError), e:
-        # I trust the exception has the path.
-        die("Unable to read config file: %s." % e)
-    try:
-        cfg.readfp(conffile)
-    finally:
-        conffile.close()
+        log.debug('Got command %(cmd)r' % dict(
+            cmd=cmd,
+            ))
 
-    os.chdir(os.path.expanduser('~'))
+        os.chdir(os.path.expanduser('~'))
 
-    try:
-        newcmd = serve(
-            cfg=cfg,
-            user=user,
-            command=cmd,
-            )
-    except ServingError, e:
-        die(str(e))
+        try:
+            newcmd = serve(
+                cfg=cfg,
+                user=user,
+                command=cmd,
+                )
+        except ServingError, e:
+            log.error('%s', e)
+            sys.exit(1)
 
-    log.debug('Serving %s', newcmd)
-    os.execvpe('git-shell', ['git-shell', '-c', newcmd], {})
-    die("Cannot execute git-shell.")
+        log.debug('Serving %s', newcmd)
+        os.execvpe('git-shell', ['git-shell', '-c', newcmd], {})
+        log.error('Cannot execute git-shell.')
+        sys.exit(1)

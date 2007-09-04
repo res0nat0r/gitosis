@@ -4,7 +4,6 @@ Initialize a user account for use with gitosis.
 
 import errno
 import logging
-import optparse
 import os
 import re
 import subprocess
@@ -16,12 +15,9 @@ from ConfigParser import RawConfigParser
 
 from gitosis import repository
 from gitosis import util
+from gitosis import app
 
 log = logging.getLogger('gitosis.init')
-
-def die(msg):
-    log.error(msg)
-    sys.exit(1)
 
 def read_ssh_pubkey(fp=None):
     if fp is None:
@@ -55,6 +51,12 @@ def initial_commit(git_dir, cfg, pubkey, user):
             ],
         )
 
+class PostUpdateFailedError(Exception):
+    """post-update hook failed"""
+
+    def __str__(self):
+        return '%s: %s' % (self.__doc__, ': '.join(self.args))
+
 def run_post_update(git_dir):
     args = [os.path.join(git_dir, 'hooks', 'post-update')]
     returncode = subprocess.call(
@@ -64,10 +66,7 @@ def run_post_update(git_dir):
         env=dict(GIT_DIR='.'),
         )
     if returncode != 0:
-        die(
-            ("post-update returned non-zero exit status %d"
-             % returncode),
-            )
+        raise PostUpdateFailedError('exit status %d' % returncode)
 
 def symlink_config(git_dir):
     dst = os.path.expanduser('~/.gitosis.conf')
@@ -84,20 +83,6 @@ def symlink_config(git_dir):
         tmp,
         )
     os.rename(tmp, dst)
-
-def getParser():
-    parser = optparse.OptionParser(
-        usage='%prog',
-        description='Initialize a user account for use with gitosis',
-        )
-    parser.set_defaults(
-        config=os.path.expanduser('~/.gitosis.conf'),
-        )
-    parser.add_option('--config',
-                      metavar='FILE',
-                      help='read config from FILE',
-                      )
-    return parser
 
 def init_admin_repository(
     git_dir,
@@ -130,49 +115,42 @@ def init_admin_repository(
             user=user,
             )
 
-def main():
-    logging.basicConfig(level=logging.INFO)
-    os.umask(0022)
+class Main(app.App):
+    def create_parser(self):
+        parser = super(Main, self).create_parser()
+        parser.set_usage('%prog [OPTS]')
+        parser.set_description(
+            'Initialize a user account for use with gitosis')
+        return parser
 
-    parser = getParser()
-    (options, args) = parser.parse_args()
-    if args:
-        parser.error('Did not expect arguments.')
+    def handle_args(self, parser, cfg, options, args):
+        super(Main, self).handle_args(parser, cfg, options, args)
 
-    cfg = RawConfigParser()
-    try:
-        conffile = file(options.config)
-    except (IOError, OSError), e:
-        if e.errno == errno.ENOENT:
-            # not existing is ok
-            pass
-        else:
-            # I trust the exception has the path.
-            die("Unable to read config file: %s." % e)
-    else:
+        logging.basicConfig(level=logging.INFO)
+        os.umask(0022)
+
+        log.info('Reading SSH public key...')
+        pubkey = read_ssh_pubkey()
+        user = ssh_extract_user(pubkey)
+        if user is None:
+            log.error('Cannot parse user from SSH public key.')
+            sys.exit(1)
+        log.info('Admin user is %r', user)
+        log.info('Creating repository structure...')
+        repositories = util.getRepositoryDir(cfg)
+        util.mkdir(repositories)
+        admin_repository = os.path.join(repositories, 'gitosis-admin.git')
+        init_admin_repository(
+            git_dir=admin_repository,
+            pubkey=pubkey,
+            user=user,
+            )
+        log.info('Running post-update hook...')
         try:
-            cfg.readfp(conffile)
-        finally:
-            conffile.close()
-
-
-    log.info('Reading SSH public key...')
-    pubkey = read_ssh_pubkey()
-    user = ssh_extract_user(pubkey)
-    if user is None:
-        die('Cannot parse user from SSH public key.')
-    log.info('Admin user is %r', user)
-    log.info('Creating repository structure...')
-    repositories = util.getRepositoryDir(cfg)
-    util.mkdir(repositories)
-    admin_repository = os.path.join(repositories, 'gitosis-admin.git')
-    init_admin_repository(
-        git_dir=admin_repository,
-        pubkey=pubkey,
-        user=user,
-        )
-    log.info('Running post-update hook...')
-    run_post_update(git_dir=admin_repository)
-    log.info('Symlinking ~/.gitosis.conf to repository...')
-    symlink_config(git_dir=admin_repository)
-    log.info('Done.')
+            run_post_update(git_dir=admin_repository)
+        except PostUpdateFailedError, e:
+            log.error('%s', e)
+            sys.exit(1)
+        log.info('Symlinking ~/.gitosis.conf to repository...')
+        symlink_config(git_dir=admin_repository)
+        log.info('Done.')
