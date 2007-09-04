@@ -123,6 +123,13 @@ class Main(app.App):
             'Initialize a user account for use with gitosis')
         return parser
 
+    def read_config(self, *a, **kw):
+        # ignore errors that result from non-existent config file
+        try:
+            super(Main, self).read_config(*a, **kw)
+        except app.ConfigFileDoesNotExistError:
+            pass
+
     def handle_args(self, parser, cfg, options, args):
         super(Main, self).handle_args(parser, cfg, options, args)
 
