@@ -189,3 +189,32 @@ def test_push_inits_if_needed_existsWithExtension():
     # it.. having HEAD implies serve ran git init, which is supposed
     # to be unnecessary here
     eq(os.listdir(os.path.join(tmp, 'foo.git')), [])
+
+def test_push_inits_no_stdout_spam():
+    # git init has a tendency to spew to stdout, and that confuses
+    # e.g. a git push
+    tmp = util.maketemp()
+    cfg = RawConfigParser()
+    cfg.add_section('gitosis')
+    cfg.set('gitosis', 'repositories', tmp)
+    cfg.add_section('group foo')
+    cfg.set('group foo', 'members', 'jdoe')
+    cfg.set('group foo', 'writable', 'foo')
+    old_stdout = os.dup(1)
+    try:
+        new_stdout = os.tmpfile()
+        os.dup2(new_stdout.fileno(), 1)
+        serve.serve(
+            cfg=cfg,
+            user='jdoe',
+            command="git-receive-pack 'foo'",
+            )
+    finally:
+        os.dup2(old_stdout, 1)
+        os.close(old_stdout)
+    new_stdout.seek(0)
+    got = new_stdout.read()
+    new_stdout.close()
+    eq(got, '')
+    eq(os.listdir(tmp), ['foo.git'])
+    assert os.path.isfile(os.path.join(tmp, 'foo.git', 'HEAD'))

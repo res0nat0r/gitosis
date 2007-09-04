@@ -1,6 +1,7 @@
 import os
 import re
 import subprocess
+import sys
 
 from gitosis import util
 
@@ -28,6 +29,7 @@ def init(
     returncode = subprocess.call(
         args=args,
         cwd=path,
+        stdout=sys.stderr,
         close_fds=True,
         env=dict(GIT_DIR='.'),
         )
