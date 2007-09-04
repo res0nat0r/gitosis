@@ -68,6 +68,6 @@ class App(object):
             else:
                 logging.root.setLevel(symbolic)
 
-    def handle_args(self, parser, options, args):
+    def handle_args(self, parser, cfg, options, args):
         if args:
             parser.error('not expecting arguments')
