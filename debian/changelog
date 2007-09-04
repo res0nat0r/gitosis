@@ -1,3 +1,20 @@
+gitosis (0.2) unstable; urgency=low
+
+  * Fix initial push syntax in README. Needs to say "refs/heads/".
+  * Clean up more files in debian/rules.
+  * Mark the generated egg as non-zip-safe.
+  * Ensure "git init" doesn't write to stdout, and confuse a push.
+    The repository autocreation functionality ends up sending the
+    stdout to the client side, and there a very confused git push
+    can't make any sense of the protocol.
+  * Adjust README to make adduser create the home directory.
+  * Avoid missing configuration file trouble on initial run
+    of gitosis-init (and hence, gitosis-run-hook).
+  * Allow using email address in SSH public key user fields.
+  * Make sure ~git/.ssh exists in gitosis-init.
+
+ -- Tommi Virtanen <tv@debian.org>  Mon,  3 Sep 2007 23:28:23 -0700
+
 gitosis (0.1) unstable; urgency=low
 
   * Initial Release.
