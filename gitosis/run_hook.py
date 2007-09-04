@@ -13,20 +13,27 @@ from gitosis import ssh
 from gitosis import gitweb
 from gitosis import app
 
-def post_update(cfg):
+def post_update(cfg, git_dir):
+    export = os.path.join(git_dir, 'gitosis-export')
     try:
-        shutil.rmtree('gitosis-export')
+        shutil.rmtree(export)
     except OSError, e:
         if e.errno == errno.ENOENT:
             pass
         else:
             raise
-    repository.export(git_dir='.', path='gitosis-export')
-    os.rename('gitosis-export/gitosis.conf', 'gitosis.conf')
-    gitweb.generate(config=cfg, path='projects.list')
+    repository.export(git_dir=git_dir, path=export)
+    os.rename(
+        os.path.join(export, 'gitosis.conf'),
+        os.path.join(export, '..', 'gitosis.conf'),
+        )
+    gitweb.generate(
+        config=cfg,
+        path=os.path.join(git_dir, 'projects.list'),
+        )
     ssh.writeAuthorizedKeys(
         path=os.path.expanduser('~/.ssh/authorized_keys'),
-        keydir='gitosis-export/keydir',
+        keydir=os.path.join(export, 'keydir'),
         )
 
 class Main(app.App):
@@ -50,12 +57,10 @@ class Main(app.App):
         if git_dir is None:
             log.error('Must have GIT_DIR set in enviroment')
             sys.exit(1)
-        os.chdir(git_dir)
-        os.environ['GIT_DIR'] = '.'
 
         if hook == 'post-update':
             log.info('Running hook %s', hook)
-            post_update(cfg)
+            post_update(cfg, git_dir)
             log.info('Done.')
         else:
             log.warning('Ignoring unknown hook: %r', hook)

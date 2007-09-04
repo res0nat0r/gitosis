@@ -6,7 +6,6 @@ import errno
 import logging
 import os
 import re
-import subprocess
 import sys
 
 from pkg_resources import resource_filename
@@ -14,6 +13,7 @@ from cStringIO import StringIO
 from ConfigParser import RawConfigParser
 
 from gitosis import repository
+from gitosis import run_hook
 from gitosis import util
 from gitosis import app
 
@@ -50,23 +50,6 @@ def initial_commit(git_dir, cfg, pubkey, user):
             ('gitosis.conf', cfg),
             ],
         )
-
-class PostUpdateFailedError(Exception):
-    """post-update hook failed"""
-
-    def __str__(self):
-        return '%s: %s' % (self.__doc__, ': '.join(self.args))
-
-def run_post_update(git_dir):
-    args = [os.path.join(git_dir, 'hooks', 'post-update')]
-    returncode = subprocess.call(
-        args=args,
-        cwd=git_dir,
-        close_fds=True,
-        env=dict(GIT_DIR='.'),
-        )
-    if returncode != 0:
-        raise PostUpdateFailedError('exit status %d' % returncode)
 
 def symlink_config(git_dir):
     dst = os.path.expanduser('~/.gitosis.conf')
@@ -133,7 +116,6 @@ class Main(app.App):
     def handle_args(self, parser, cfg, options, args):
         super(Main, self).handle_args(parser, cfg, options, args)
 
-        logging.basicConfig(level=logging.INFO)
         os.umask(0022)
 
         log.info('Reading SSH public key...')
@@ -153,11 +135,7 @@ class Main(app.App):
             user=user,
             )
         log.info('Running post-update hook...')
-        try:
-            run_post_update(git_dir=admin_repository)
-        except PostUpdateFailedError, e:
-            log.error('%s', e)
-            sys.exit(1)
+        run_hook.post_update(cfg=cfg, git_dir=admin_repository)
         log.info('Symlinking ~/.gitosis.conf to repository...')
         symlink_config(git_dir=admin_repository)
         log.info('Done.')
