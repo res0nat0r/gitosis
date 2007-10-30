@@ -119,6 +119,7 @@ Commit that change and push. Then create the initial commit and push
 it::
 
 	mkdir myproject
+	cd mypyroject
 	git init
 	git remote add myserver git@MYSERVER:myproject.git
 	# do some work, git add and commit files
