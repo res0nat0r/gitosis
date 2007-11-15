@@ -47,7 +47,7 @@ def generate_fp(config, fp):
     :param fp: writable for ``projects.list``
     :type fp: (file-like, anything with ``.write(data)``)
     """
-    log = logging.getLogger('gitosis.access.haveAccess')
+    log = logging.getLogger('gitosis.gitweb')
 
     repositories = util.getRepositoryDir(config)
 
