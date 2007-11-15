@@ -2,12 +2,9 @@
  TODO list
 ===========
 
-- let me have ~git{,/repositories} owned by root:root
+- let me have ~git owned by root:root
 
 - gitosis-lint: check that the user account (e.g. ``git``) looks valid
-
-- gitosis-create-repositories: create repos mentioned in config if
-  they don't exist
 
 - git-daemon-export-ok
 
@@ -45,6 +42,8 @@
 - need to chgrp repositories www-data to make them accessible by gitweb
 
 - allow using git-cvsserver?
+  - git-shell can now let users do cvs-compatible commits
+  - ponder GIT_AUTHOR_NAME etc
 
 - move from log.foo("bar" % quux) to log.foo("bar",  quux)
 
@@ -69,8 +68,7 @@
 
 - maybe postprocess gitosis.conf to have a "# DO NOT EDIT" header?
 
-- setuptools 0.6a9 will have a non-executeable post-update hook,
-  this will make gitosis-admin settings not update
-  (fixed in 0.6c5, maybe earlier)
-
 - git enhancement: "git init" should output to stderr, not to stdout
+
+- README says "when prompted", but those are INFO level log messages,
+  not shown by default
