@@ -194,6 +194,55 @@ Frobitz the quux and eschew obfuscation.
     eq(got[6], 'Frobitz the quux and eschew obfuscation.')
     eq(got[7:], [])
 
+def test_export_environment():
+    tmp = maketemp()
+    git_dir = os.path.join(tmp, 'repo.git')
+    mockbindir = os.path.join(tmp, 'mockbin')
+    os.mkdir(mockbindir)
+    mockgit = os.path.join(mockbindir, 'git')
+    writeFile(mockgit, '''\
+#!/bin/sh
+set -e
+# git wrapper for gitosis unit tests
+printf '%s\n' "$GITOSIS_UNITTEST_COOKIE" >>"$(dirname "$0")/../cookie"
+
+# strip away my special PATH insert so system git will be found
+PATH="${PATH#*:}"
+
+exec git "$@"
+''')
+    os.chmod(mockgit, 0755)
+    repository.init(path=git_dir)
+    repository.fast_import(
+        git_dir=git_dir,
+        committer='John Doe <jdoe@example.com>',
+        commit_msg="""\
+Reverse the polarity of the neutron flow.
+
+Frobitz the quux and eschew obfuscation.
+""",
+        files=[
+            ('foo', 'content'),
+            ('bar/quux', 'another'),
+            ],
+        )
+    export = os.path.join(tmp, 'export')
+    magic_cookie = '%d' % random.randint(1, 100000)
+    good_path = os.environ['PATH']
+    try:
+        os.environ['PATH'] = '%s:%s' % (mockbindir, good_path)
+        os.environ['GITOSIS_UNITTEST_COOKIE'] = magic_cookie
+        repository.export(git_dir=git_dir, path=export)
+    finally:
+        os.environ['PATH'] = good_path
+        os.environ.pop('GITOSIS_UNITTEST_COOKIE', None)
+    got = readFile(os.path.join(tmp, 'cookie'))
+    eq(
+        got,
+        # export runs git twice
+        '%s\n%s\n' % (magic_cookie, magic_cookie),
+        )
+
 def test_has_initial_commit_fail_notAGitDir():
     tmp = maketemp()
     e = assert_raises(

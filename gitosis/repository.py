@@ -111,22 +111,26 @@ def export(git_dir, path):
     # extract to the subdirectory
     path = os.path.join(path, '')
     returncode = subprocess.call(
-        args=['git', 'read-tree', 'HEAD'],
+        args=[
+            'git',
+            '--git-dir=%s' % git_dir,
+            'read-tree',
+            'HEAD',
+            ],
         close_fds=True,
-        env=dict(GIT_DIR=git_dir),
         )
     if returncode != 0:
         raise GitReadTreeError('exit status %d' % returncode)
     returncode = subprocess.call(
         args=[
             'git',
+            '--git-dir=%s' % git_dir,
             'checkout-index',
             '-a',
             '-f',
             '--prefix=%s' % path,
             ],
         close_fds=True,
-        env=dict(GIT_DIR=git_dir),
         )
     if returncode != 0:
         raise GitCheckoutIndexError('exit status %d' % returncode)
