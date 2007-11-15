@@ -19,10 +19,10 @@ class ConfigFileDoesNotExistError(CannotReadConfigError):
 class App(object):
     name = None
 
-    @classmethod
     def run(class_):
         app = class_()
         return app.main()
+    run = classmethod(run)
 
     def main(self):
         self.setup_basic_logging()
