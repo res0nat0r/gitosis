@@ -1,3 +1,4 @@
+import errno
 import os
 import re
 import subprocess
@@ -107,9 +108,13 @@ class GitCheckoutIndexError(GitExportError):
     """git checkout-index failed"""
 
 def export(git_dir, path):
-    # it's a literal prefix for git, a trailing slash is needed to
-    # extract to the subdirectory
-    path = os.path.join(path, '')
+    try:
+        os.mkdir(path)
+    except OSError, e:
+        if e.errno == errno.EEXIST:
+            pass
+        else:
+            raise
     returncode = subprocess.call(
         args=[
             'git',
@@ -121,6 +126,11 @@ def export(git_dir, path):
         )
     if returncode != 0:
         raise GitReadTreeError('exit status %d' % returncode)
+    # jumping through hoops to be compatible with git versions
+    # that don't have --work-tree=
+    env = {}
+    env.update(os.environ)
+    env['GIT_WORK_TREE'] = '.'
     returncode = subprocess.call(
         args=[
             'git',
@@ -128,9 +138,10 @@ def export(git_dir, path):
             'checkout-index',
             '-a',
             '-f',
-            '--prefix=%s' % path,
             ],
+        cwd=path,
         close_fds=True,
+        env=env,
         )
     if returncode != 0:
         raise GitCheckoutIndexError('exit status %d' % returncode)
