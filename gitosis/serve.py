@@ -149,6 +149,6 @@ class Main(app.App):
             sys.exit(1)
 
         log.debug('Serving %s', newcmd)
-        os.execvpe('git-shell', ['git-shell', '-c', newcmd], {})
+        os.execvp('git-shell', ['git-shell', '-c', newcmd])
         log.error('Cannot execute git-shell.')
         sys.exit(1)
