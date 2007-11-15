@@ -3,7 +3,7 @@ Section: admin
 Priority: optional
 Maintainer: Tommi Virtanen <tv@debian.org>
 Standards-Version: 3.7.2
-Build-Depends: @cdbs@
+Build-Depends: @cdbs@, python-setuptools (>= 0.6c5)
 
 Package: gitosis
 Section: admin

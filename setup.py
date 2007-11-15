@@ -56,5 +56,12 @@ arbitrary commands.
 
     # templates need to be a real directory, for git init
     zip_safe=False,
+
+    install_requires=[
+        # setuptools 0.6a9 will have a non-executeable post-update
+        # hook, this will make gitosis-admin settings not update
+        # (fixed in 0.6c5, maybe earlier)
+        'setuptools>=0.6c5',
+        ],
     )
 
