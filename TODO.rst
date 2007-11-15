@@ -37,8 +37,6 @@
 - gitweb knows about README.html, figure out how to generate from e.g.
   README.rst in gitosis.git
 
-- make gitosis-gitweb output a gitweb.conf file too
-
 - need to chgrp repositories www-data to make them accessible by gitweb
 
 - allow using git-cvsserver?
