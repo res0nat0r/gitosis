@@ -20,6 +20,19 @@ def init(
     template=None,
     _git=None,
     ):
+    """
+    Create a git repository at C{path} (if missing).
+
+    Leading directories of C{path} must exist.
+
+    @param path: Path of repository create.
+
+    @type path: str
+
+    @param template: Template directory, to pass to C{git init}.
+
+    @type template: str
+    """
     if _git is None:
         _git = 'git'
 

@@ -10,8 +10,8 @@ def haveAccess(config, user, mode, path):
     Note for read-only access, the caller should check for write
     access too.
 
-    Returns ``None`` for no access, or the physical repository path
-    for access granted to that repository.
+    Returns ``None`` for no access, or a tuple of toplevel directory
+    containing repositories and a relative path to the physical repository.
     """
     log = logging.getLogger('gitosis.access.haveAccess')
 
@@ -85,10 +85,4 @@ def haveAccess(config, user, mode, path):
                 prefix=prefix,
                 path=mapping,
                 ))
-            mapping = os.path.join(prefix, mapping)
-            log.debug(
-                'New path is %(path)r'
-                % dict(
-                path=mapping,
-                ))
-            return mapping
+            return (prefix, mapping)

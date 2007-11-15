@@ -115,7 +115,7 @@ def test_simple_read():
         user='jdoe',
         command="git-upload-pack 'foo'",
         )
-    eq(got, "git-upload-pack '%s/foo'" % tmp)
+    eq(got, "git-upload-pack '%s/foo.git'" % tmp)
 
 def test_simple_write():
     tmp = util.maketemp()
@@ -131,7 +131,7 @@ def test_simple_write():
         user='jdoe',
         command="git-receive-pack 'foo'",
         )
-    eq(got, "git-receive-pack '%s/foo'" % tmp)
+    eq(got, "git-receive-pack '%s/foo.git'" % tmp)
 
 def test_push_inits_if_needed():
     # a push to a non-existent repository (but where config authorizes
@@ -168,6 +168,46 @@ def test_push_inits_if_needed_haveExtension():
         )
     eq(os.listdir(tmp), ['foo.git'])
     assert os.path.isfile(os.path.join(tmp, 'foo.git', 'HEAD'))
+
+def test_push_inits_subdir_parent_missing():
+    tmp = util.maketemp()
+    cfg = RawConfigParser()
+    cfg.add_section('gitosis')
+    cfg.set('gitosis', 'repositories', tmp)
+    cfg.add_section('group foo')
+    cfg.set('group foo', 'members', 'jdoe')
+    cfg.set('group foo', 'writable', 'foo/bar')
+    serve.serve(
+        cfg=cfg,
+        user='jdoe',
+        command="git-receive-pack 'foo/bar.git'",
+        )
+    eq(os.listdir(tmp), ['foo'])
+    foo = os.path.join(tmp, 'foo')
+    util.check_mode(foo, 0750, is_dir=True)
+    eq(os.listdir(foo), ['bar.git'])
+    assert os.path.isfile(os.path.join(tmp, 'foo', 'bar.git', 'HEAD'))
+
+def test_push_inits_subdir_parent_exists():
+    tmp = util.maketemp()
+    foo = os.path.join(tmp, 'foo')
+    # silly mode on purpose; not to be touched
+    os.mkdir(foo, 0751)
+    cfg = RawConfigParser()
+    cfg.add_section('gitosis')
+    cfg.set('gitosis', 'repositories', tmp)
+    cfg.add_section('group foo')
+    cfg.set('group foo', 'members', 'jdoe')
+    cfg.set('group foo', 'writable', 'foo/bar')
+    serve.serve(
+        cfg=cfg,
+        user='jdoe',
+        command="git-receive-pack 'foo/bar.git'",
+        )
+    eq(os.listdir(tmp), ['foo'])
+    util.check_mode(foo, 0751, is_dir=True)
+    eq(os.listdir(foo), ['bar.git'])
+    assert os.path.isfile(os.path.join(tmp, 'foo', 'bar.git', 'HEAD'))
 
 def test_push_inits_if_needed_existsWithExtension():
     tmp = util.maketemp()

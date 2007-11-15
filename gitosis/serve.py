@@ -11,6 +11,7 @@ import sys, os, re
 from gitosis import access
 from gitosis import repository
 from gitosis import app
+from gitosis import util
 
 ALLOW_RE = re.compile("^'(?P<path>[a-zA-Z0-9][a-zA-Z0-9@._-]*(/[a-zA-Z0-9][a-zA-Z0-9@._-]*)*)'$")
 
@@ -93,20 +94,29 @@ def serve(
             # didn't have write access and tried to write
             raise WriteAccessDenied()
 
-    assert not newpath.endswith('.git'), \
-           'git extension should have been stripped: %r' % newpath
-    repopath = '%s.git' % newpath
-    if (not os.path.exists(repopath)
+    (topdir, relpath) = newpath
+    assert not relpath.endswith('.git'), \
+           'git extension should have been stripped: %r' % relpath
+    repopath = '%s.git' % relpath
+    fullpath = os.path.join(topdir, repopath)
+    if (not os.path.exists(fullpath)
         and verb in COMMANDS_WRITE):
         # it doesn't exist on the filesystem, but the configuration
         # refers to it, we're serving a write request, and the user is
         # authorized to do that: create the repository on the fly
-        repository.init(path=repopath)
+
+        # create leading directories
+        p = topdir
+        for segment in repopath.split(os.sep)[:-1]:
+            p = os.path.join(p, segment)
+            util.mkdir(p, 0750)
+
+        repository.init(path=fullpath)
 
     # put the verb back together with the new path
-    newcmd = "%(verb)s '%(newpath)s'" % dict(
+    newcmd = "%(verb)s '%(path)s'" % dict(
         verb=verb,
-        newpath=newpath,
+        path=fullpath,
         )
     return newcmd
 
