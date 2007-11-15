@@ -37,9 +37,9 @@ def _escape_filename(s):
     s = s.replace('"', '\\"')
     return s
 
-def generate_fp(config, fp):
+def generate_project_list_fp(config, fp):
     """
-    Generate a config file and projects list for ``gitweb``.
+    Generate projects list for ``gitweb``.
 
     :param config: configuration to read projects from
     :type config: RawConfigParser
@@ -94,9 +94,9 @@ def generate_fp(config, fp):
         line = ' '.join([urllib.quote_plus(s) for s in response])
         print >>fp, line
 
-def generate(config, path):
+def generate_project_list(config, path):
     """
-    Generate a config file and projects list for ``gitweb``.
+    Generate projects list for ``gitweb``.
 
     :param config: configuration to read projects from
     :type config: RawConfigParser
