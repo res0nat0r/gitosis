@@ -173,11 +173,16 @@ Frobitz the quux and eschew obfuscation.
     eq(os.listdir(os.path.join(export, 'bar')), ['quux'])
     eq(readFile(os.path.join(export, 'bar', 'quux')), 'another')
     child = subprocess.Popen(
-        args=['git', 'cat-file', 'commit', 'HEAD'],
+        args=[
+            'git',
+            '--git-dir=%s' % git_dir,
+            'cat-file',
+            'commit',
+            'HEAD',
+            ],
         cwd=git_dir,
         stdout=subprocess.PIPE,
         close_fds=True,
-        env=dict(GIT_DIR=git_dir),
         )
     got = child.stdout.read().splitlines()
     returncode = child.wait()
