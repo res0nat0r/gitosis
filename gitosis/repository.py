@@ -55,11 +55,16 @@ def fast_import(
     """
     init(path=git_dir)
     child = subprocess.Popen(
-        args=['git', 'fast-import', '--quiet', '--date-format=now'],
+        args=[
+            'git',
+            '--git-dir=.',
+            'fast-import',
+            '--quiet',
+            '--date-format=now',
+            ],
         cwd=git_dir,
         stdin=subprocess.PIPE,
         close_fds=True,
-        env=dict(GIT_DIR=git_dir),
         )
     files = list(files)
     for index, (path, content) in enumerate(files):

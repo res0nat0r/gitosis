@@ -103,6 +103,51 @@ exec git "$@"
     got = readFile(os.path.join(tmp, 'cookie'))
     eq(got, magic_cookie)
 
+def test_fast_import_environment():
+    tmp = maketemp()
+    path = os.path.join(tmp, 'repo.git')
+    mockbindir = os.path.join(tmp, 'mockbin')
+    os.mkdir(mockbindir)
+    mockgit = os.path.join(mockbindir, 'git')
+    writeFile(mockgit, '''\
+#!/bin/sh
+set -e
+# git wrapper for gitosis unit tests
+printf '%s' "$GITOSIS_UNITTEST_COOKIE" >"$(dirname "$0")/../cookie"
+
+# strip away my special PATH insert so system git will be found
+PATH="${PATH#*:}"
+
+exec git "$@"
+''')
+    os.chmod(mockgit, 0755)
+    magic_cookie = '%d' % random.randint(1, 100000)
+    good_path = os.environ['PATH']
+    try:
+        os.environ['PATH'] = '%s:%s' % (mockbindir, good_path)
+        os.environ['GITOSIS_UNITTEST_COOKIE'] = magic_cookie
+        repository.fast_import(
+            git_dir=path,
+            commit_msg='foo initial bar',
+            committer='Mr. Unit Test <unit.test@example.com>',
+            files=[
+                ('foo', 'bar\n'),
+                ],
+            )
+    finally:
+        os.environ['PATH'] = good_path
+        os.environ.pop('GITOSIS_UNITTEST_COOKIE', None)
+    eq(
+        sorted(os.listdir(tmp)),
+        sorted([
+                'mockbin',
+                'cookie',
+                'repo.git',
+                ]),
+        )
+    got = readFile(os.path.join(tmp, 'cookie'))
+    eq(got, magic_cookie)
+
 def test_export_simple():
     tmp = maketemp()
     git_dir = os.path.join(tmp, 'repo.git')
