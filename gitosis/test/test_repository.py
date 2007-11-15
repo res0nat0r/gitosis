@@ -269,3 +269,41 @@ def test_has_initial_commit_yes():
     got = repository.has_initial_commit(git_dir=tmp)
     eq(got, True)
 
+def test_has_initial_commit_environment():
+    tmp = maketemp()
+    git_dir = os.path.join(tmp, 'repo.git')
+    mockbindir = os.path.join(tmp, 'mockbin')
+    os.mkdir(mockbindir)
+    mockgit = os.path.join(mockbindir, 'git')
+    writeFile(mockgit, '''\
+#!/bin/sh
+set -e
+# git wrapper for gitosis unit tests
+printf '%s' "$GITOSIS_UNITTEST_COOKIE" >"$(dirname "$0")/../cookie"
+
+# strip away my special PATH insert so system git will be found
+PATH="${PATH#*:}"
+
+exec git "$@"
+''')
+    os.chmod(mockgit, 0755)
+    repository.init(path=tmp)
+    repository.fast_import(
+        git_dir=tmp,
+        commit_msg='fakecommit',
+        committer='John Doe <jdoe@example.com>',
+        files=[],
+        )
+    magic_cookie = '%d' % random.randint(1, 100000)
+    good_path = os.environ['PATH']
+    try:
+        os.environ['PATH'] = '%s:%s' % (mockbindir, good_path)
+        os.environ['GITOSIS_UNITTEST_COOKIE'] = magic_cookie
+        got = repository.has_initial_commit(git_dir=tmp)
+    finally:
+        os.environ['PATH'] = good_path
+        os.environ.pop('GITOSIS_UNITTEST_COOKIE', None)
+    eq(got, True)
+    got = readFile(os.path.join(tmp, 'cookie'))
+    eq(got, magic_cookie)
+

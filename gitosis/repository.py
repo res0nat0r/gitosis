@@ -143,11 +143,15 @@ class GitRevParseError(GitError):
 
 def has_initial_commit(git_dir):
     child = subprocess.Popen(
-        args=['git', 'rev-parse', 'HEAD'],
+        args=[
+            'git',
+            '--git-dir=.',
+            'rev-parse',
+            'HEAD',
+            ],
         cwd=git_dir,
         stdout=subprocess.PIPE,
         close_fds=True,
-        env=dict(GIT_DIR='.'),
         )
     got = child.stdout.read()
     returncode = child.wait()
