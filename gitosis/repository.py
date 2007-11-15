@@ -23,7 +23,11 @@ def init(
         _git = 'git'
 
     util.mkdir(path, 0750)
-    args = [_git, 'init']
+    args = [
+        _git,
+        '--git-dir=.',
+        'init',
+        ]
     if template is not None:
         args.append('--template=%s' % template)
     returncode = subprocess.call(
@@ -31,7 +35,6 @@ def init(
         cwd=path,
         stdout=sys.stderr,
         close_fds=True,
-        env=dict(GIT_DIR='.'),
         )
     if returncode != 0:
         raise GitInitError('exit status %d' % returncode)

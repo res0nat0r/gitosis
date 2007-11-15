@@ -2,11 +2,18 @@ from nose.tools import eq_ as eq
 
 import os
 import subprocess
+import random
 
 from gitosis import repository
 
-from gitosis.test.util import mkdir, maketemp, readFile, check_mode
-from gitosis.test.util import assert_raises
+from gitosis.test.util import (
+    mkdir,
+    maketemp,
+    readFile,
+    writeFile,
+    check_mode,
+    assert_raises,
+    )
 
 def check_bare(path):
     # we want it to be a bare repository
@@ -57,6 +64,44 @@ def test_init_templates():
     eq(got, '#!/bin/sh\n# i can override standard templates\n')
     # standard templates are there, too
     assert os.path.isfile(os.path.join(path, 'hooks', 'pre-rebase'))
+
+def test_init_environment():
+    tmp = maketemp()
+    path = os.path.join(tmp, 'repo.git')
+    mockbindir = os.path.join(tmp, 'mockbin')
+    os.mkdir(mockbindir)
+    mockgit = os.path.join(mockbindir, 'git')
+    writeFile(mockgit, '''\
+#!/bin/sh
+set -e
+# git wrapper for gitosis unit tests
+printf '%s' "$GITOSIS_UNITTEST_COOKIE" >"$(dirname "$0")/../cookie"
+
+# strip away my special PATH insert so system git will be found
+PATH="${PATH#*:}"
+
+exec git "$@"
+''')
+    os.chmod(mockgit, 0755)
+    magic_cookie = '%d' % random.randint(1, 100000)
+    good_path = os.environ['PATH']
+    try:
+        os.environ['PATH'] = '%s:%s' % (mockbindir, good_path)
+        os.environ['GITOSIS_UNITTEST_COOKIE'] = magic_cookie
+        repository.init(path)
+    finally:
+        os.environ['PATH'] = good_path
+        os.environ.pop('GITOSIS_UNITTEST_COOKIE', None)
+    eq(
+        sorted(os.listdir(tmp)),
+        sorted([
+                'mockbin',
+                'cookie',
+                'repo.git',
+                ]),
+        )
+    got = readFile(os.path.join(tmp, 'cookie'))
+    eq(got, magic_cookie)
 
 def test_export_simple():
     tmp = maketemp()
