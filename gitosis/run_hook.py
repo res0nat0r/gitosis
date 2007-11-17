@@ -11,6 +11,7 @@ import shutil
 from gitosis import repository
 from gitosis import ssh
 from gitosis import gitweb
+from gitosis import gitdaemon
 from gitosis import app
 
 def post_update(cfg, git_dir):
@@ -30,6 +31,9 @@ def post_update(cfg, git_dir):
     gitweb.generate_project_list(
         config=cfg,
         path=os.path.join(git_dir, 'projects.list'),
+        )
+    gitdaemon.set_export_ok(
+        config=cfg,
         )
     ssh.writeAuthorizedKeys(
         path=os.path.expanduser('~/.ssh/authorized_keys'),

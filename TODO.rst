@@ -6,7 +6,8 @@
 
 - gitosis-lint: check that the user account (e.g. ``git``) looks valid
 
-- git-daemon-export-ok
+- create git-daemon-export-ok, description, projects.list etc when
+  autocreating repositorites?
 
 - guard against *.pub files named -foo.pub or foo;bar.pub
 
