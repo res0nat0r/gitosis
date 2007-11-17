@@ -147,7 +147,7 @@ def export(git_dir, path):
     returncode = subprocess.call(
         args=[
             'git',
-            '--git-dir=%s' % git_dir,
+            '--git-dir=%s' % os.path.abspath(git_dir),
             'checkout-index',
             '-a',
             '-f',
