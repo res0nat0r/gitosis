@@ -108,7 +108,7 @@ def generate_project_list(config, path):
 
     f = file(tmp, 'w')
     try:
-        generate_fp(config=config, fp=f)
+        generate_project_list_fp(config=config, fp=f)
     finally:
         f.close()
 
