@@ -5,7 +5,7 @@ from ConfigParser import RawConfigParser
 from cStringIO import StringIO
 
 from gitosis import gitweb
-from gitosis.test.util import mkdir, maketemp
+from gitosis.test.util import mkdir, maketemp, readFile
 
 def test_projectsList_empty():
     cfg = RawConfigParser()
@@ -103,5 +103,23 @@ def test_projectsList_reallyEndsWithGit():
         config=cfg,
         fp=got)
     eq(got.getvalue(), '''\
+foo.git
+''')
+
+def test_projectsList_path():
+    tmp = maketemp()
+    path = os.path.join(tmp, 'foo.git')
+    mkdir(path)
+    cfg = RawConfigParser()
+    cfg.add_section('gitosis')
+    cfg.set('gitosis', 'repositories', tmp)
+    cfg.add_section('repo foo')
+    cfg.set('repo foo', 'gitweb', 'yes')
+    projects_list = os.path.join(tmp, 'projects.list')
+    gitweb.generate_project_list(
+        config=cfg,
+        path=projects_list)
+    got = readFile(projects_list)
+    eq(got, '''\
 foo.git
 ''')
