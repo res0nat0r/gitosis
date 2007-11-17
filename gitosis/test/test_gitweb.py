@@ -5,7 +5,7 @@ from ConfigParser import RawConfigParser
 from cStringIO import StringIO
 
 from gitosis import gitweb
-from gitosis.test.util import mkdir, maketemp, readFile
+from gitosis.test.util import mkdir, maketemp, readFile, writeFile
 
 def test_projectsList_empty():
     cfg = RawConfigParser()
@@ -123,3 +123,102 @@ def test_projectsList_path():
     eq(got, '''\
 foo.git
 ''')
+
+def test_description_none():
+    tmp = maketemp()
+    path = os.path.join(tmp, 'foo.git')
+    mkdir(path)
+    cfg = RawConfigParser()
+    cfg.add_section('gitosis')
+    cfg.set('gitosis', 'repositories', tmp)
+    cfg.add_section('repo foo')
+    cfg.set('repo foo', 'description', 'foodesc')
+    gitweb.set_descriptions(
+        config=cfg,
+        )
+    got = readFile(os.path.join(path, 'description'))
+    eq(got, 'foodesc\n')
+
+def test_description_repo_missing():
+    # configured but not created yet; before first push
+    tmp = maketemp()
+    path = os.path.join(tmp, 'foo.git')
+    cfg = RawConfigParser()
+    cfg.add_section('gitosis')
+    cfg.set('gitosis', 'repositories', tmp)
+    cfg.add_section('repo foo')
+    cfg.set('repo foo', 'description', 'foodesc')
+    gitweb.set_descriptions(
+        config=cfg,
+        )
+    assert not os.path.exists(os.path.join(tmp, 'foo'))
+    assert not os.path.exists(os.path.join(tmp, 'foo.git'))
+
+def test_description_repo_missing_parent():
+    # configured but not created yet; before first push
+    tmp = maketemp()
+    path = os.path.join(tmp, 'foo/bar.git')
+    cfg = RawConfigParser()
+    cfg.add_section('gitosis')
+    cfg.set('gitosis', 'repositories', tmp)
+    cfg.add_section('repo foo')
+    cfg.set('repo foo', 'description', 'foodesc')
+    gitweb.set_descriptions(
+        config=cfg,
+        )
+    assert not os.path.exists(os.path.join(tmp, 'foo'))
+
+def test_description_default():
+    tmp = maketemp()
+    path = os.path.join(tmp, 'foo.git')
+    mkdir(path)
+    writeFile(
+        os.path.join(path, 'description'),
+        'Unnamed repository; edit this file to name it for gitweb.\n',
+        )
+    cfg = RawConfigParser()
+    cfg.add_section('gitosis')
+    cfg.set('gitosis', 'repositories', tmp)
+    cfg.add_section('repo foo')
+    cfg.set('repo foo', 'description', 'foodesc')
+    gitweb.set_descriptions(
+        config=cfg,
+        )
+    got = readFile(os.path.join(path, 'description'))
+    eq(got, 'foodesc\n')
+
+def test_description_not_set():
+    tmp = maketemp()
+    path = os.path.join(tmp, 'foo.git')
+    mkdir(path)
+    writeFile(
+        os.path.join(path, 'description'),
+        'i was here first\n',
+        )
+    cfg = RawConfigParser()
+    cfg.add_section('gitosis')
+    cfg.set('gitosis', 'repositories', tmp)
+    cfg.add_section('repo foo')
+    gitweb.set_descriptions(
+        config=cfg,
+        )
+    got = readFile(os.path.join(path, 'description'))
+    eq(got, 'i was here first\n')
+
+def test_description_again():
+    tmp = maketemp()
+    path = os.path.join(tmp, 'foo.git')
+    mkdir(path)
+    cfg = RawConfigParser()
+    cfg.add_section('gitosis')
+    cfg.set('gitosis', 'repositories', tmp)
+    cfg.add_section('repo foo')
+    cfg.set('repo foo', 'description', 'foodesc')
+    gitweb.set_descriptions(
+        config=cfg,
+        )
+    gitweb.set_descriptions(
+        config=cfg,
+        )
+    got = readFile(os.path.join(path, 'description'))
+    eq(got, 'foodesc\n')

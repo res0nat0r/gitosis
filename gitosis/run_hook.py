@@ -28,6 +28,9 @@ def post_update(cfg, git_dir):
         os.path.join(export, 'gitosis.conf'),
         os.path.join(export, '..', 'gitosis.conf'),
         )
+    gitweb.set_descriptions(
+        config=cfg,
+        )
     gitweb.generate_project_list(
         config=cfg,
         path=os.path.join(git_dir, 'projects.list'),

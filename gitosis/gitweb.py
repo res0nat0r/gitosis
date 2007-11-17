@@ -47,7 +47,7 @@ def generate_project_list_fp(config, fp):
     :param fp: writable for ``projects.list``
     :type fp: (file-like, anything with ``.write(data)``)
     """
-    log = logging.getLogger('gitosis.gitweb')
+    log = logging.getLogger('gitosis.gitweb.generate_projects_list')
 
     repositories = util.getRepositoryDir(config)
 
@@ -113,3 +113,53 @@ def generate_project_list(config, path):
         f.close()
 
     os.rename(tmp, path)
+
+
+def set_descriptions(config):
+    """
+    Set descriptions for gitweb use.
+    """
+    log = logging.getLogger('gitosis.gitweb.set_descriptions')
+
+    repositories = util.getRepositoryDir(config)
+
+    for section in config.sections():
+        l = section.split(None, 1)
+        type_ = l.pop(0)
+        if type_ != 'repo':
+            continue
+        if not l:
+            continue
+
+        try:
+            description = config.get(section, 'description')
+        except (NoSectionError, NoOptionError):
+            continue
+
+        if not description:
+            continue
+
+        name, = l
+
+        if not os.path.exists(os.path.join(repositories, name)):
+            namedotgit = '%s.git' % name
+            if os.path.exists(os.path.join(repositories, namedotgit)):
+                name = namedotgit
+            else:
+                log.warning(
+                    'Cannot find %(name)r in %(repositories)r'
+                    % dict(name=name, repositories=repositories))
+                continue
+
+        path = os.path.join(
+            repositories,
+            name,
+            'description',
+            )
+        tmp = '%s.%d.tmp' % (path, os.getpid())
+        f = file(tmp, 'w')
+        try:
+            print >>f, description
+        finally:
+            f.close()
+        os.rename(tmp, path)

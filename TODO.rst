@@ -30,9 +30,6 @@
 
 - test with ssh://
 
-- write description to a file, make REPO.git/description symlink to it
-  if it doesn't exist (thus not overwriting local changes)
-
 - gitweb knows about cloneurl, handle like description
 
 - gitweb knows about README.html, figure out how to generate from e.g.
