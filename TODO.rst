@@ -30,8 +30,6 @@
 
 - test with ssh://
 
-- gitweb knows about cloneurl, handle like description
-
 - gitweb knows about README.html, figure out how to generate from e.g.
   README.rst in gitosis.git
 
@@ -68,3 +66,5 @@
 
 - README says "when prompted", but those are INFO level log messages,
   not shown by default
+
+- rename keydir to keys, with backwards compatibility
