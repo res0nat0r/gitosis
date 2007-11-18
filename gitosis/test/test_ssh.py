@@ -73,6 +73,21 @@ class ReadKeys_Test(object):
             ('wsmith', KEY_2),
             ]))
 
+    def test_multiple_lines(self):
+        tmp = maketemp()
+        keydir = os.path.join(tmp, 'two')
+        mkdir(keydir)
+        writeFile(os.path.join(keydir, 'jdoe.pub'), KEY_1+'\n'+KEY_2+'\n')
+
+        gen = ssh.readKeys(keydir=keydir)
+        got = frozenset(gen)
+
+        eq(got,
+           frozenset([
+            ('jdoe', KEY_1),
+            ('jdoe', KEY_2),
+            ]))
+
 class GenerateAuthorizedKeys_Test(object):
     def test_simple(self):
         def k():
