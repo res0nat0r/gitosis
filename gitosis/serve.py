@@ -10,6 +10,8 @@ import sys, os, re
 
 from gitosis import access
 from gitosis import repository
+from gitosis import gitweb
+from gitosis import gitdaemon
 from gitosis import app
 from gitosis import util
 
@@ -112,6 +114,21 @@ def serve(
             util.mkdir(p, 0750)
 
         repository.init(path=fullpath)
+        gitweb.set_descriptions(
+            config=cfg,
+            )
+        gitosis_repo = os.path.join(topdir, 'gitosis-admin.git')
+        if os.path.isdir(gitosis_repo):
+            gitweb.generate_project_list(
+                config=cfg,
+                path=os.path.join(
+                    gitosis_repo,
+                    'projects.list',
+                    ),
+                )
+        gitdaemon.set_export_ok(
+            config=cfg,
+            )
 
     # put the verb back together with the new path
     newcmd = "%(verb)s '%(path)s'" % dict(

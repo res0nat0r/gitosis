@@ -258,3 +258,69 @@ def test_push_inits_no_stdout_spam():
     eq(got, '')
     eq(os.listdir(tmp), ['foo.git'])
     assert os.path.isfile(os.path.join(tmp, 'foo.git', 'HEAD'))
+
+def test_push_inits_sets_description():
+    tmp = util.maketemp()
+    cfg = RawConfigParser()
+    cfg.add_section('gitosis')
+    cfg.set('gitosis', 'repositories', tmp)
+    cfg.add_section('group foo')
+    cfg.set('group foo', 'members', 'jdoe')
+    cfg.set('group foo', 'writable', 'foo')
+    cfg.add_section('repo foo')
+    cfg.set('repo foo', 'description', 'foodesc')
+    serve.serve(
+        cfg=cfg,
+        user='jdoe',
+        command="git-receive-pack 'foo'",
+        )
+    eq(os.listdir(tmp), ['foo.git'])
+    path = os.path.join(tmp, 'foo.git', 'description')
+    assert os.path.exists(path)
+    got = util.readFile(path)
+    eq(got, 'foodesc\n')
+
+def test_push_inits_updates_projects_list():
+    tmp = util.maketemp()
+    os.mkdir(os.path.join(tmp, 'gitosis-admin.git'))
+    cfg = RawConfigParser()
+    cfg.add_section('gitosis')
+    cfg.set('gitosis', 'repositories', tmp)
+    cfg.add_section('group foo')
+    cfg.set('group foo', 'members', 'jdoe')
+    cfg.set('group foo', 'writable', 'foo')
+    cfg.add_section('repo foo')
+    cfg.set('repo foo', 'gitweb', 'yes')
+    serve.serve(
+        cfg=cfg,
+        user='jdoe',
+        command="git-receive-pack 'foo'",
+        )
+    eq(
+        sorted(os.listdir(tmp)),
+        sorted(['foo.git', 'gitosis-admin.git']),
+        )
+    path = os.path.join(tmp, 'gitosis-admin.git', 'projects.list')
+    assert os.path.exists(path)
+    got = util.readFile(path)
+    eq(got, 'foo.git\n')
+
+def test_push_inits_sets_export_ok():
+    tmp = util.maketemp()
+    cfg = RawConfigParser()
+    cfg.add_section('gitosis')
+    cfg.set('gitosis', 'repositories', tmp)
+    cfg.add_section('group foo')
+    cfg.set('group foo', 'members', 'jdoe')
+    cfg.set('group foo', 'writable', 'foo')
+    cfg.add_section('repo foo')
+    cfg.set('repo foo', 'daemon', 'yes')
+    serve.serve(
+        cfg=cfg,
+        user='jdoe',
+        command="git-receive-pack 'foo'",
+        )
+    eq(os.listdir(tmp), ['foo.git'])
+    path = os.path.join(tmp, 'foo.git', 'git-daemon-export-ok')
+    assert os.path.exists(path)
+

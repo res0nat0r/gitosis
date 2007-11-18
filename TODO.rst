@@ -6,9 +6,6 @@
 
 - gitosis-lint: check that the user account (e.g. ``git``) looks valid
 
-- create git-daemon-export-ok, description, projects.list etc when
-  autocreating repositorites?
-
 - guard against *.pub files named -foo.pub or foo;bar.pub
 
 - gitweb doesn't understand mappings, just visible/no,
