@@ -65,3 +65,6 @@
   not shown by default
 
 - rename keydir to keys, with backwards compatibility
+
+- get rid of username extraction from ssh key comment field, used only
+  in gitosis-init
