@@ -157,6 +157,39 @@ For other operating systems, use a similar invocation in an ``init.d``
 script, ``/etc/inittab``, ``inetd.conf``, ``runit``, or something like
 that (good luck).
 
+Note that this short snippet is not a substitute for reading and
+understanding the relevant documentation.
+
+
+Using gitweb
+============
+
+``gitweb`` is a CGI script that lets one browse ``git`` repositories
+on the web. It is most commonly used anonymously, but you could also
+require authentication in your web server, before letting people use
+it. ``gitosis`` can help here by generating a list of projects that
+are publicly visible. Simply add a section ``[repo REPOSITORYNAME]``
+to your ``gitosis.conf``, and allow publishing with ``gitweb = yes``
+(or globally under ``[gitosis]``). You should also set ``description``
+and ``owner`` for each repository.
+
+Here's a LightTPD_ config file snippet showing how to run ``gitweb``
+as a CGI:
+
+.. _LightTPD: http://www.lighttpd.net/
+
+.. include:: lighttpd-gitweb.conf
+   :literal:
+
+And a simple ``gitweb.conf`` file:
+
+.. include:: gitweb.conf
+   :literal:
+
+Note that this short snippet is not a substitute for reading and
+understanding the relevant documentation.
+
+
 
 Contact
 =======
