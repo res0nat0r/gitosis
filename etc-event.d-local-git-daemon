@@ -1,0 +1,11 @@
+start on startup
+stop on shutdown
+
+exec /usr/bin/git-daemon \
+	--user=git --group=git \
+	--user-path=public-git \
+	--verbose \
+	--reuseaddr \
+	--base-path=/srv/example.com/git/repositories/ \
+	/srv/example.com/git/repositories/
+respawn
