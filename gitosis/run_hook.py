@@ -13,6 +13,7 @@ from gitosis import ssh
 from gitosis import gitweb
 from gitosis import gitdaemon
 from gitosis import app
+from gitosis import util
 
 def post_update(cfg, git_dir):
     export = os.path.join(git_dir, 'gitosis-export')
@@ -31,9 +32,10 @@ def post_update(cfg, git_dir):
     gitweb.set_descriptions(
         config=cfg,
         )
+    generated = util.getGeneratedFilesDir(config=cfg)
     gitweb.generate_project_list(
         config=cfg,
-        path=os.path.join(git_dir, 'projects.list'),
+        path=os.path.join(generated, 'projects.list'),
         )
     gitdaemon.set_export_ok(
         config=cfg,

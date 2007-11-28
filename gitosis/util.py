@@ -21,3 +21,9 @@ def getRepositoryDir(config):
         repositories = os.path.join(repositories, path)
     return repositories
 
+def getGeneratedFilesDir(config):
+    try:
+        generated = config.get('gitosis', 'generate-files-in')
+    except (NoSectionError, NoOptionError):
+        generated = os.path.expanduser('~/gitosis')
+    return generated

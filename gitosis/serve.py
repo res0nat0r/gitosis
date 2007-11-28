@@ -117,15 +117,11 @@ def serve(
         gitweb.set_descriptions(
             config=cfg,
             )
-        gitosis_repo = os.path.join(topdir, 'gitosis-admin.git')
-        if os.path.isdir(gitosis_repo):
-            gitweb.generate_project_list(
-                config=cfg,
-                path=os.path.join(
-                    gitosis_repo,
-                    'projects.list',
-                    ),
-                )
+        generated = util.getGeneratedFilesDir(config=cfg)
+        gitweb.generate_project_list(
+            config=cfg,
+            path=os.path.join(generated, 'projects.list'),
+            )
         gitdaemon.set_export_ok(
             config=cfg,
             )
