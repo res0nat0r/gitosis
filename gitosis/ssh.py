@@ -1,4 +1,13 @@
 import os, errno, re
+import logging
+
+log = logging.getLogger('gitosis.ssh')
+
+_ACCEPTABLE_USER_RE = re.compile(r'^[a-z][a-z0-9]*(@[a-z][a-z0-9.-]*)?$')
+
+def isSafeUsername(user):
+    match = _ACCEPTABLE_USER_RE.match(user)
+    return (match is not None)
 
 def readKeys(keydir):
     """
@@ -9,6 +18,10 @@ def readKeys(keydir):
             continue
         basename, ext = os.path.splitext(filename)
         if ext != '.pub':
+            continue
+
+        if not isSafeUsername(basename):
+            log.warn('Unsafe SSH username in keyfile: %r', filename)
             continue
 
         path = os.path.join(keydir, filename)

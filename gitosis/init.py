@@ -5,7 +5,6 @@ Initialize a user account for use with gitosis.
 import errno
 import logging
 import os
-import re
 import sys
 
 from pkg_resources import resource_filename
@@ -14,6 +13,7 @@ from ConfigParser import RawConfigParser
 
 from gitosis import repository
 from gitosis import run_hook
+from gitosis import ssh
 from gitosis import util
 from gitosis import app
 
@@ -25,8 +25,6 @@ def read_ssh_pubkey(fp=None):
     line = fp.readline()
     return line
 
-_ACCEPTABLE_USER_RE = re.compile(r'^[a-z][a-z0-9]*(@[a-z][a-z0-9.-]*)?$')
-
 class InsecureSSHKeyUsername(Exception):
     """Username contains not allowed characters"""
 
@@ -35,7 +33,7 @@ class InsecureSSHKeyUsername(Exception):
 
 def ssh_extract_user(pubkey):
     _, user = pubkey.rsplit(None, 1)
-    if _ACCEPTABLE_USER_RE.match(user):
+    if ssh.isSafeUsername(user):
         return user
     else:
         raise InsecureSSHKeyUsername(repr(user))
