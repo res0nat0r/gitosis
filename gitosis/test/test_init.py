@@ -36,6 +36,33 @@ def test_ssh_extract_user_domain_dashes():
         +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= fakeuser@ridiculously-long.example.com')
     eq(got, 'fakeuser@ridiculously-long.example.com')
 
+def test_ssh_extract_user_underscore():
+    got = init.ssh_extract_user(
+        'ssh-somealgo '
+        +'0123456789ABCDEFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= fake_user@example.com')
+    eq(got, 'fake_user@example.com')
+
+def test_ssh_extract_user_dot():
+    got = init.ssh_extract_user(
+        'ssh-somealgo '
+        +'0123456789ABCDEFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= fake.u.ser@example.com')
+    eq(got, 'fake.u.ser@example.com')
+
+def test_ssh_extract_user_dash():
+    got = init.ssh_extract_user(
+        'ssh-somealgo '
+        +'0123456789ABCDEFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= fake.u-ser@example.com')
+    eq(got, 'fake.u-ser@example.com')
+
 def test_ssh_extract_user_no_at():
     got = init.ssh_extract_user(
         'ssh-somealgo '

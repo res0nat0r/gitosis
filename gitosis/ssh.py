@@ -3,7 +3,7 @@ import logging
 
 log = logging.getLogger('gitosis.ssh')
 
-_ACCEPTABLE_USER_RE = re.compile(r'^[a-z][a-z0-9]*(@[a-z][a-z0-9.-]*)?$')
+_ACCEPTABLE_USER_RE = re.compile(r'^[a-z][a-z0-9_.-]*(@[a-z][a-z0-9.-]*)?$')
 
 def isSafeUsername(user):
     match = _ACCEPTABLE_USER_RE.match(user)
