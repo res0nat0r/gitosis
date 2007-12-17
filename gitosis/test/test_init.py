@@ -72,6 +72,15 @@ def test_ssh_extract_user_no_at():
         +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= fakeuser')
     eq(got, 'fakeuser')
 
+def test_ssh_extract_user_caps():
+    got = init.ssh_extract_user(
+        'ssh-somealgo '
+        +'0123456789ABCDEFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        +'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= Fake.User@Domain.Example.Com')
+    eq(got, 'Fake.User@Domain.Example.Com')
+
 def test_ssh_extract_user_bad():
     e = assert_raises(
         init.InsecureSSHKeyUsername,
