@@ -32,5 +32,5 @@ def getSSHAuthorizedKeysPath(config):
     try:
         path = config.get('gitosis', 'ssh-authorized-keys-path')
     except (NoSectionError, NoOptionError):
-        path = os.path.expanduser('~/.ssh/authorized_keys'),
+        path = os.path.expanduser('~/.ssh/authorized_keys')
     return path
