@@ -67,7 +67,6 @@ def fast_import(
     """
     Create an initial commit.
     """
-    init(path=git_dir)
     child = subprocess.Popen(
         args=[
             'git',

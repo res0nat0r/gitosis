@@ -106,6 +106,7 @@ exec git "$@"
 def test_fast_import_environment():
     tmp = maketemp()
     path = os.path.join(tmp, 'repo.git')
+    repository.init(path=path)
     mockbindir = os.path.join(tmp, 'mockbin')
     os.mkdir(mockbindir)
     mockgit = os.path.join(mockbindir, 'git')
