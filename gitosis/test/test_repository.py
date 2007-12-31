@@ -313,3 +313,31 @@ exec git "$@"
     got = readFile(os.path.join(tmp, 'cookie'))
     eq(got, magic_cookie)
 
+def test_fast_import_parent():
+    tmp = maketemp()
+    path = os.path.join(tmp, 'repo.git')
+    repository.init(path=path)
+    repository.fast_import(
+        git_dir=path,
+        commit_msg='foo initial bar',
+        committer='Mr. Unit Test <unit.test@example.com>',
+        files=[
+            ('foo', 'bar\n'),
+            ],
+        )
+    repository.fast_import(
+        git_dir=path,
+        commit_msg='another',
+        committer='Sam One Else <sam@example.com>',
+        parent='refs/heads/master^0',
+        files=[
+            ('quux', 'thud\n'),
+            ],
+        )
+    export = os.path.join(tmp, 'export')
+    repository.export(
+        git_dir=path,
+        path=export,
+        )
+    eq(sorted(os.listdir(export)),
+       sorted(['foo', 'quux']))

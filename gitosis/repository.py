@@ -63,6 +63,7 @@ def fast_import(
     commit_msg,
     committer,
     files,
+    parent=None,
     ):
     """
     Create an initial commit.
@@ -97,10 +98,17 @@ committer %(committer)s now
 data %(commit_msg_len)d
 %(commit_msg)s
 """ % dict(
-        committer=committer,
-        commit_msg_len=len(commit_msg),
-        commit_msg=commit_msg,
-        ))
+            committer=committer,
+            commit_msg_len=len(commit_msg),
+            commit_msg=commit_msg,
+            ))
+    if parent is not None:
+        assert not parent.startswith(':')
+        child.stdin.write("""\
+from %(parent)s
+""" % dict(
+                parent=parent,
+                ))
     for index, (path, content) in enumerate(files):
         child.stdin.write('M 100644 :%d %s\n' % (index+1, path))
     child.stdin.close()
