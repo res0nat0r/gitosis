@@ -1,7 +1,19 @@
 import os, logging
 from ConfigParser import NoSectionError, NoOptionError
+from fnmatch import fnmatch
 
 from gitosis import group
+
+def pathMatchPatterns(path, repos):
+    """
+    Check existence of given path against list of path patterns
+
+    The pattern definition is the as fnmatch.fnmatch.
+    """
+    for repo in repos:
+        if fnmatch(path, repo):
+            return True
+    return False
 
 def haveAccess(config, user, mode, path):
     """
@@ -43,7 +55,7 @@ def haveAccess(config, user, mode, path):
 
         mapping = None
 
-        if path in repos:
+        if pathMatchPatterns(path, repos):
             log.debug(
                 'Access ok for %(user)r as %(mode)r on %(path)r'
                 % dict(
