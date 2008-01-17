@@ -19,7 +19,11 @@ def _getMembership(config, user, seen):
         else:
             members = members.split()
 
-        if user in members:
+        # @all is the only group where membership needs to be
+        # bootstrapped like this, anything else gets started from the
+        # username itself
+        if (user in members
+            or '@all' in members):
             log.debug('found %(user)r in %(group)r' % dict(
                 user=user,
                 group=group,

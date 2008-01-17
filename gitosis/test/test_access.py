@@ -78,6 +78,14 @@ def test_read_yes_map_wouldHaveWritable():
     eq(access.haveAccess(config=cfg, user='jdoe', mode='readonly', path='foo/bar'),
        None)
 
+def test_read_yes_all():
+    cfg = RawConfigParser()
+    cfg.add_section('group fooers')
+    cfg.set('group fooers', 'members', '@all')
+    cfg.set('group fooers', 'readonly', 'foo/bar')
+    eq(access.haveAccess(config=cfg, user='jdoe', mode='readonly', path='foo/bar'),
+       ('repositories', 'foo/bar'))
+
 def test_base_global_absolute():
     cfg = RawConfigParser()
     cfg.add_section('gitosis')
