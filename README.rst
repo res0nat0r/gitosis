@@ -41,7 +41,8 @@ First, we will create the user that will own the repositories. This is
 usually called ``git``, but any name will work, and you can have more
 than one per system if you really want to. The user does not need a
 password, but does need a valid shell (otherwise, SSH will refuse to
-work).
+work). Don't use an existing account unless you know what you're
+doing.
 
 I usually store ``git`` repositories in the subtree
 ``/srv/example.com/git`` (replace ``example.com`` with your own
