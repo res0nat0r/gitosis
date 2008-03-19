@@ -45,14 +45,38 @@ def test_bad_command():
     eq(str(e), 'Unknown command denied')
     assert isinstance(e, serve.ServingError)
 
-def test_bad_unsafeArguments():
+def test_bad_unsafeArguments_notQuoted():
     cfg = RawConfigParser()
     e = assert_raises(
         serve.UnsafeArgumentsError,
         serve.serve,
         cfg=cfg,
         user='jdoe',
-        command='git-upload-pack /evil/attack',
+        command="git-upload-pack foo",
+        )
+    eq(str(e), 'Arguments to command look dangerous')
+    assert isinstance(e, serve.ServingError)
+
+def test_bad_unsafeArguments_absolute():
+    cfg = RawConfigParser()
+    e = assert_raises(
+        serve.UnsafeArgumentsError,
+        serve.serve,
+        cfg=cfg,
+        user='jdoe',
+        command="git-upload-pack '/evil/attack'",
+        )
+    eq(str(e), 'Arguments to command look dangerous')
+    assert isinstance(e, serve.ServingError)
+
+def test_bad_unsafeArguments_badCharacters():
+    cfg = RawConfigParser()
+    e = assert_raises(
+        serve.UnsafeArgumentsError,
+        serve.serve,
+        cfg=cfg,
+        user='jdoe',
+        command="git-upload-pack 'ev!l'",
         )
     eq(str(e), 'Arguments to command look dangerous')
     assert isinstance(e, serve.ServingError)
@@ -64,7 +88,7 @@ def test_bad_unsafeArguments_dotdot():
         serve.serve,
         cfg=cfg,
         user='jdoe',
-        command='git-upload-pack something/../evil',
+        command="git-upload-pack 'something/../evil'",
         )
     eq(str(e), 'Arguments to command look dangerous')
     assert isinstance(e, serve.ServingError)
