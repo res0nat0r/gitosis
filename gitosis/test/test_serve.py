@@ -57,18 +57,6 @@ def test_bad_unsafeArguments_notQuoted():
     eq(str(e), 'Arguments to command look dangerous')
     assert isinstance(e, serve.ServingError)
 
-def test_bad_unsafeArguments_absolute():
-    cfg = RawConfigParser()
-    e = assert_raises(
-        serve.UnsafeArgumentsError,
-        serve.serve,
-        cfg=cfg,
-        user='jdoe',
-        command="git-upload-pack '/evil/attack'",
-        )
-    eq(str(e), 'Arguments to command look dangerous')
-    assert isinstance(e, serve.ServingError)
-
 def test_bad_unsafeArguments_badCharacters():
     cfg = RawConfigParser()
     e = assert_raises(
@@ -402,3 +390,23 @@ def test_push_inits_sets_export_ok():
     path = os.path.join(repositories, 'foo.git', 'git-daemon-export-ok')
     assert os.path.exists(path)
 
+def test_absolute():
+    # as the only convenient way to use non-standard SSH ports with
+    # git is via the ssh://user@host:port/path syntax, and that syntax
+    # forces absolute urls, just force convert absolute paths to
+    # relative paths; you'll never really want absolute paths via
+    # gitosis, anyway.
+    tmp = util.maketemp()
+    repository.init(os.path.join(tmp, 'foo.git'))
+    cfg = RawConfigParser()
+    cfg.add_section('gitosis')
+    cfg.set('gitosis', 'repositories', tmp)
+    cfg.add_section('group foo')
+    cfg.set('group foo', 'members', 'jdoe')
+    cfg.set('group foo', 'readonly', 'foo')
+    got = serve.serve(
+        cfg=cfg,
+        user='jdoe',
+        command="git-upload-pack '/foo'",
+        )
+    eq(got, "git-upload-pack '%s/foo.git'" % tmp)

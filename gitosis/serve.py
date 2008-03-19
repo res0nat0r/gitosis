@@ -15,7 +15,7 @@ from gitosis import gitdaemon
 from gitosis import app
 from gitosis import util
 
-ALLOW_RE = re.compile("^'(?P<path>[a-zA-Z0-9][a-zA-Z0-9@._-]*(/[a-zA-Z0-9][a-zA-Z0-9@._-]*)*)'$")
+ALLOW_RE = re.compile("^'/*(?P<path>[a-zA-Z0-9][a-zA-Z0-9@._-]*(/[a-zA-Z0-9][a-zA-Z0-9@._-]*)*)'$")
 
 COMMANDS_READONLY = [
     'git-upload-pack',
