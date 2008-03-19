@@ -57,6 +57,18 @@ def test_bad_unsafeArguments():
     eq(str(e), 'Arguments to command look dangerous')
     assert isinstance(e, serve.ServingError)
 
+def test_bad_unsafeArguments_dotdot():
+    cfg = RawConfigParser()
+    e = assert_raises(
+        serve.UnsafeArgumentsError,
+        serve.serve,
+        cfg=cfg,
+        user='jdoe',
+        command='git-upload-pack something/../evil',
+        )
+    eq(str(e), 'Arguments to command look dangerous')
+    assert isinstance(e, serve.ServingError)
+
 def test_bad_forbiddenCommand_read():
     cfg = RawConfigParser()
     e = assert_raises(
