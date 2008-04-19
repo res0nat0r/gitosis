@@ -15,6 +15,8 @@ from gitosis import gitdaemon
 from gitosis import app
 from gitosis import util
 
+log = logging.getLogger('gitosis.serve')
+
 ALLOW_RE = re.compile("^'/*(?P<path>[a-zA-Z0-9][a-zA-Z0-9@._-]*(/[a-zA-Z0-9][a-zA-Z0-9@._-]*)*)'$")
 
 COMMANDS_READONLY = [
@@ -79,6 +81,21 @@ def serve(
         user=user,
         mode='writable',
         path=path)
+
+    if newpath is None:
+        # didn't have write access; try once more with the popular
+        # misspelling
+        newpath = access.haveAccess(
+            config=cfg,
+            user=user,
+            mode='writeable',
+            path=path)
+        if newpath is not None:
+            log.warning(
+                'Repository %r config has typo "writeable", '
+                +'should be "writable"',
+                path,
+                )
 
     if newpath is None:
         # didn't have write access
@@ -147,15 +164,15 @@ class Main(app.App):
         except ValueError:
             parser.error('Missing argument USER.')
 
-        log = logging.getLogger('gitosis.serve.main')
+        main_log = logging.getLogger('gitosis.serve.main')
         os.umask(0022)
 
         cmd = os.environ.get('SSH_ORIGINAL_COMMAND', None)
         if cmd is None:
-            log.error('Need SSH_ORIGINAL_COMMAND in environment.')
+            main_log.error('Need SSH_ORIGINAL_COMMAND in environment.')
             sys.exit(1)
 
-        log.debug('Got command %(cmd)r' % dict(
+        main_log.debug('Got command %(cmd)r' % dict(
             cmd=cmd,
             ))
 
@@ -168,10 +185,10 @@ class Main(app.App):
                 command=cmd,
                 )
         except ServingError, e:
-            log.error('%s', e)
+            main_log.error('%s', e)
             sys.exit(1)
 
-        log.debug('Serving %s', newcmd)
+        main_log.debug('Serving %s', newcmd)
         os.execvp('git-shell', ['git-shell', '-c', newcmd])
-        log.error('Cannot execute git-shell.')
+        main_log.error('Cannot execute git-shell.')
         sys.exit(1)

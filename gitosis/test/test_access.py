@@ -1,5 +1,6 @@
 from nose.tools import eq_ as eq
 
+import logging
 from ConfigParser import RawConfigParser
 
 from gitosis import access

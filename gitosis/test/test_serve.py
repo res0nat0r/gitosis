@@ -1,7 +1,9 @@
 from nose.tools import eq_ as eq
 from gitosis.test.util import assert_raises
 
+import logging
 import os
+from cStringIO import StringIO
 from ConfigParser import RawConfigParser
 
 from gitosis import serve
@@ -410,3 +412,32 @@ def test_absolute():
         command="git-upload-pack '/foo'",
         )
     eq(got, "git-upload-pack '%s/foo.git'" % tmp)
+
+def test_typo_writeable():
+    tmp = util.maketemp()
+    repository.init(os.path.join(tmp, 'foo.git'))
+    cfg = RawConfigParser()
+    cfg.add_section('gitosis')
+    cfg.set('gitosis', 'repositories', tmp)
+    cfg.add_section('group foo')
+    cfg.set('group foo', 'members', 'jdoe')
+    cfg.set('group foo', 'writeable', 'foo')
+    log = logging.getLogger('gitosis.serve')
+    buf = StringIO()
+    handler = logging.StreamHandler(buf)
+    log.addHandler(handler)
+    try:
+        got = serve.serve(
+            cfg=cfg,
+            user='jdoe',
+            command="git-receive-pack 'foo'",
+            )
+    finally:
+        log.removeHandler(handler)
+    eq(got, "git-receive-pack '%s/foo.git'" % tmp)
+    handler.flush()
+    eq(
+        buf.getvalue(),
+        "Repository 'foo' config has typo \"writeable\", shou"
+        +"ld be \"writable\"\n",
+        )
