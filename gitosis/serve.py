@@ -21,10 +21,12 @@ ALLOW_RE = re.compile("^'/*(?P<path>[a-zA-Z0-9][a-zA-Z0-9@._-]*(/[a-zA-Z0-9][a-z
 
 COMMANDS_READONLY = [
     'git-upload-pack',
+    'git upload-pack',
     ]
 
 COMMANDS_WRITE = [
     'git-receive-pack',
+    'git receive-pack',
     ]
 
 class ServingError(Exception):
@@ -62,8 +64,18 @@ def serve(
     try:
         verb, args = command.split(None, 1)
     except ValueError:
-        # all known commands take one argument; improve if/when needed
+        # all known "git-foo" commands take one argument; improve
+        # if/when needed
         raise UnknownCommandError()
+
+    if verb == 'git':
+        try:
+            subverb, args = args.split(None, 1)
+        except ValueError:
+            # all known "git foo" commands take one argument; improve
+            # if/when needed
+            raise UnknownCommandError()
+        verb = '%s %s' % (verb, subverb)
 
     if (verb not in COMMANDS_WRITE
         and verb not in COMMANDS_READONLY):
