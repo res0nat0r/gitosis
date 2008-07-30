@@ -1,0 +1,7 @@
+include COPYING
+include README.rst
+include example.conf
+include etc-event.d-local-git-daemon
+include gitweb.conf
+include lighttpd-gitweb.conf
+recursive-include gitosis/templates *
