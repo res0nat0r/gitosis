@@ -89,6 +89,12 @@ def generate_project_list_fp(config, fp):
         except (NoSectionError, NoOptionError):
             pass
         else:
+            try:
+                username = config.get('user %s' % owner, 'name')
+            except (NoSectionError, NoOptionError):
+                pass
+            else:
+                response.append(username)
             response.append(owner)
 
         line = ' '.join([urllib.quote_plus(s) for s in response])
