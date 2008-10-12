@@ -45,9 +45,13 @@ def haveAccess(config, user, mode, path):
             ))
         path = basename
 
-    for groupname in group.getMembership(config=config, user=user):
+    sections = ['group %s' % item for item in
+                 group.getMembership(config=config, user=user)]
+    sections.insert(0, 'user %s' % user)
+
+    for sectname in sections:
         try:
-            repos = config.get('group %s' % groupname, mode)
+            repos = config.get(sectname, mode)
         except (NoSectionError, NoOptionError):
             repos = []
         else:
@@ -66,7 +70,7 @@ def haveAccess(config, user, mode, path):
             mapping = path
         else:
             try:
-                mapping = config.get('group %s' % groupname,
+                mapping = config.get(sectname,
                                      'map %s %s' % (mode, path))
             except (NoSectionError, NoOptionError):
                 pass
@@ -83,8 +87,7 @@ def haveAccess(config, user, mode, path):
         if mapping is not None:
             prefix = None
             try:
-                prefix = config.get(
-                    'group %s' % groupname, 'repositories')
+                prefix = config.get(sectname, 'repositories')
             except (NoSectionError, NoOptionError):
                 try:
                     prefix = config.get('gitosis', 'repositories')
