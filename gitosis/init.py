@@ -77,6 +77,8 @@ def init_admin_repository(
     repository.init(
         path=git_dir,
         )
+    hook = os.path.join(git_dir, 'hooks', 'post-update')
+    os.chmod(hook, 0755)
     if not repository.has_initial_commit(git_dir):
         log.info('Making initial commit...')
         # ConfigParser does not guarantee order, so jump through hoops
