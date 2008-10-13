@@ -153,3 +153,34 @@ def test_git_daemon_export_ok_allowed_global():
     eq(exported(os.path.join(tmp, 'foo.git')), True)
     eq(exported(os.path.join(tmp, 'quux.git')), True)
     eq(exported(os.path.join(tmp, 'thud.git')), False)
+
+def test_git_daemon_export_ok_allowed_all():
+    tmp = maketemp()
+
+    for repo in [
+        'foo.git',
+        'quux.git',
+        'thud.git',
+        ]:
+        path = os.path.join(tmp, repo)
+        os.mkdir(path)
+
+    # try to provoke an invalid allow
+    writeFile(gitdaemon.export_ok_path(os.path.join(tmp, 'thud.git')), '')
+
+    cfg = RawConfigParser()
+    cfg.add_section('gitosis')
+    cfg.set('gitosis', 'repositories', tmp)
+    cfg.set('gitosis', 'daemon-if-all', 'yes')
+    cfg.add_section('group all')
+    cfg.set('group all', 'readonly', 'foo')
+    cfg.add_section('group boo')
+    cfg.set('group boo', 'members', '@all')
+    cfg.set('group boo', 'readonly', 'quux thud')
+    cfg.add_section('repo thud')
+    # this is still hidden
+    cfg.set('repo thud', 'daemon', 'no')
+    gitdaemon.set_export_ok(config=cfg)
+    eq(exported(os.path.join(tmp, 'foo.git')), True)
+    eq(exported(os.path.join(tmp, 'quux.git')), True)
+    eq(exported(os.path.join(tmp, 'thud.git')), False)

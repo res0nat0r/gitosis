@@ -7,6 +7,7 @@ from ConfigParser import NoSectionError, NoOptionError
 log = logging.getLogger('gitosis.gitdaemon')
 
 from gitosis import util
+from gitosis import access
 
 def export_ok_path(repopath):
     p = os.path.join(repopath, 'git-daemon-export-ok')
@@ -82,11 +83,23 @@ def set_export_ok(config):
         {True: 'allow', False: 'deny'}.get(global_enable),
         )
 
+    try:
+        enable_if_all = config.getboolean('gitosis', 'daemon-if-all')
+    except (NoSectionError, NoOptionError):
+        enable_if_all = False
+    log.debug(
+        'If accessible to @all: %r',
+        {True: 'allow', False: 'unchanged'}.get(enable_if_all),
+        )
+
     for (dirpath, repo, name) in walk_repos(config):
         try:
             enable = config.getboolean('repo %s' % name, 'daemon')
         except (NoSectionError, NoOptionError):
             enable = global_enable
+            if not enable and enable_if_all:
+                (users,groups,all_refs) = access.getAllAccess(config,name)
+                enable = ('@all' in all_refs)
 
         if enable:
             log.debug('Allow %r', name)
