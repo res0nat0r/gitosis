@@ -37,6 +37,30 @@ def _escape_filename(s):
     s = s.replace('"', '\\"')
     return s
 
+def enum_cfg_repos(config):
+    """
+    Enumerates all repositories that have repo sections in the config.
+    """
+    repositories = util.getRepositoryDir(config)
+
+    for section in config.sections():
+        l = section.split(None, 1)
+        type_ = l.pop(0)
+        if type_ != 'repo':
+            continue
+        if not l:
+            continue
+
+        name, = l
+
+        if not os.path.exists(os.path.join(repositories, name)):
+            subpath = '%s.git' % name
+        else:
+            subpath = name
+
+        yield (section, name, repositories, subpath)
+
+
 def generate_project_list_fp(config, fp):
     """
     Generate projects list for ``gitweb``.
@@ -49,21 +73,12 @@ def generate_project_list_fp(config, fp):
     """
     log = logging.getLogger('gitosis.gitweb.generate_projects_list')
 
-    repositories = util.getRepositoryDir(config)
-
     try:
         global_enable = config.getboolean('gitosis', 'gitweb')
     except (NoSectionError, NoOptionError):
         global_enable = False
 
-    for section in config.sections():
-        l = section.split(None, 1)
-        type_ = l.pop(0)
-        if type_ != 'repo':
-            continue
-        if not l:
-            continue
-
+    for (section, name, topdir, subpath) in enum_cfg_repos(config):
         try:
             enable = config.getboolean(section, 'gitweb')
         except (NoSectionError, NoOptionError):
@@ -72,18 +87,15 @@ def generate_project_list_fp(config, fp):
         if not enable:
             continue
 
-        name, = l
+        if not os.path.exists(os.path.join(topdir,subpath)):
+            log.warning(
+                'Cannot find %(name)r in %(topdir)r'
+                % dict(name=name,topdir=topdir))
+            # preserve old behavior, using the original name for
+            # completely nonexistant repos:
+            subpath = name
 
-        if not os.path.exists(os.path.join(repositories, name)):
-            namedotgit = '%s.git' % name
-            if os.path.exists(os.path.join(repositories, namedotgit)):
-                name = namedotgit
-            else:
-                log.warning(
-                    'Cannot find %(name)r in %(repositories)r'
-                    % dict(name=name, repositories=repositories))
-
-        response = [name]
+        response = [subpath]
         try:
             owner = config.get(section, 'owner')
         except (NoSectionError, NoOptionError):
@@ -127,16 +139,7 @@ def set_descriptions(config):
     """
     log = logging.getLogger('gitosis.gitweb.set_descriptions')
 
-    repositories = util.getRepositoryDir(config)
-
-    for section in config.sections():
-        l = section.split(None, 1)
-        type_ = l.pop(0)
-        if type_ != 'repo':
-            continue
-        if not l:
-            continue
-
+    for (section, name, topdir, subpath) in enum_cfg_repos(config):
         try:
             description = config.get(section, 'description')
         except (NoSectionError, NoOptionError):
@@ -145,21 +148,15 @@ def set_descriptions(config):
         if not description:
             continue
 
-        name, = l
-
-        if not os.path.exists(os.path.join(repositories, name)):
-            namedotgit = '%s.git' % name
-            if os.path.exists(os.path.join(repositories, namedotgit)):
-                name = namedotgit
-            else:
-                log.warning(
-                    'Cannot find %(name)r in %(repositories)r'
-                    % dict(name=name, repositories=repositories))
-                continue
+        if not os.path.exists(os.path.join(topdir,subpath)):
+            log.warning(
+                'Cannot find %(name)r in %(topdir)r'
+                % dict(name=name,topdir=topdir))
+            continue
 
         path = os.path.join(
-            repositories,
-            name,
+            topdir,
+            subpath,
             'description',
             )
         tmp = '%s.%d.tmp' % (path, os.getpid())
