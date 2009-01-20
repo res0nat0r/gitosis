@@ -14,6 +14,7 @@ from gitosis import gitweb
 from gitosis import gitdaemon
 from gitosis import app
 from gitosis import util
+from gitosis import snagit
 
 log = logging.getLogger('gitosis.serve')
 
@@ -190,6 +191,14 @@ class Main(app.App):
 
         os.chdir(os.path.expanduser('~'))
 
+        if (cmd == "snagit list-repos"):
+            try:
+                snagit.list_repos(cfg, user, cmd)
+                sys.exit(0)
+            except Exception, e:
+                main_log.error('%s', e)
+                sys.exit(1)
+        
         try:
             newcmd = serve(
                 cfg=cfg,
