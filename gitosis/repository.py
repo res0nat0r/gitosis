@@ -207,3 +207,22 @@ def has_initial_commit(git_dir):
         return True
     else:
         raise GitHasInitialCommitError('Unknown git HEAD: %r' % got)
+
+
+class GitPushMirrorException(GitError):
+    """push --mirror failed"""
+
+def mirror(git_dir, remote):
+    returncode = subprocess.call(
+        args=[
+            'git',
+            '--git-dir=%s' % git_dir,
+            'push',
+            '--mirror',
+            remote,
+            ],
+        cwd=git_dir,
+        close_fds=True
+        )
+    if returncode != 0:
+        raise GitPushMirrorException('exit status %d' % returncode)
