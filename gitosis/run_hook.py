@@ -1,6 +1,7 @@
 """
 Perform gitosis actions for a git hook.
 """
+from ConfigParser import NoOptionError, NoSectionError
 
 import errno
 import logging
@@ -14,6 +15,7 @@ from gitosis import gitweb
 from gitosis import gitdaemon
 from gitosis import app
 from gitosis import util
+from gitosis import mirror
 
 def post_update(cfg, git_dir):
     export = os.path.join(git_dir, 'gitosis-export')
@@ -48,6 +50,10 @@ def post_update(cfg, git_dir):
         keydir=os.path.join(export, 'keydir'),
         )
 
+def update_mirrors(cfg, git_dir):
+    mirror.push_mirrors(cfg, git_dir)
+
+
 class Main(app.App):
     def create_parser(self):
         parser = super(Main, self).create_parser()
@@ -73,6 +79,10 @@ class Main(app.App):
         if hook == 'post-update':
             log.info('Running hook %s', hook)
             post_update(cfg, git_dir)
+            log.info('Done.')
+        elif hook == 'update-mirrors':
+            log.info('Running hook %s', hook)
+            update_mirrors(cfg, git_dir)
             log.info('Done.')
         else:
             log.warning('Ignoring unknown hook: %r', hook)
