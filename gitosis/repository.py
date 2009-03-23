@@ -42,8 +42,9 @@ def init(
         '--git-dir=.',
         'init',
         ]
-    if template is not None:
-        args.append('--template=%s' % template)
+    if template is None:
+        template = resource_filename('gitosis.templates', 'default')
+    args.append('--template=%s' % template)
     returncode = subprocess.call(
         args=args,
         cwd=path,
