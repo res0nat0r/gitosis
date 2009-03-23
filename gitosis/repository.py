@@ -1,9 +1,11 @@
+import stat
 import errno
 import os
 import re
 import subprocess
 import sys
 
+from pkg_resources import resource_filename
 from gitosis import util
 
 class GitError(Exception):
@@ -53,6 +55,16 @@ def init(
         )
     if returncode != 0:
         raise GitInitError('exit status %d' % returncode)
+    hooks_dir = os.path.join(path, 'hooks')
+    if not os.path.exists(hooks_dir):
+        hooks_dir = os.path.join(path, '.git', 'hooks')
+    if not os.path.exists(hooks_dir):
+        raise
+    for tree in os.walk(os.path.join(template, 'hooks')):
+        for hook in tree[2]:
+            os.chmod(
+                os.path.join(hooks_dir, hook),
+                0754)
 
 
 class GitFastImportError(GitError):
