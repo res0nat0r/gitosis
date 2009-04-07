@@ -66,6 +66,20 @@ def test_init_templates():
     # Git doesn't create missing hooks
     #assert os.path.isfile(os.path.join(path, 'hooks', 'pre-rebase'))
 
+def test_init_default_templates():
+    tmp = maketemp()
+    path = os.path.join(tmp, 'repo.git')
+    repository.init(path)
+    hook_path = os.path.join(path, 'hooks', 'post-receive')
+    check_mode(
+        hook_path,
+        0755,
+        is_file=True,
+        )
+    got = readFile(hook_path)
+    eq(got, '#!/bin/sh\nset -e\ngit-update-server-info\ngitosis-run-hook update-mirrors')
+    
+
 def test_init_environment():
     tmp = maketemp()
     path = os.path.join(tmp, 'repo.git')
