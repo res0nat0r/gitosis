@@ -64,7 +64,7 @@ def init(
         for hook in tree[2]:
             os.chmod(
                 os.path.join(hooks_dir, hook),
-                0754)
+                0755)
 
 
 class GitFastImportError(GitError):
