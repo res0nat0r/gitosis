@@ -62,8 +62,8 @@ def test_init_templates():
         )
     got = readFile(os.path.join(path, 'hooks', 'post-update'))
     eq(got, '#!/bin/sh\n# i can override standard templates\n')
-    # standard templates are there, too
-    assert os.path.isfile(os.path.join(path, 'hooks', 'pre-rebase'))
+    # Git doesn't create missing hooks
+    #assert os.path.isfile(os.path.join(path, 'hooks', 'pre-rebase'))
 
 def test_init_environment():
     tmp = maketemp()
