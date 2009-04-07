@@ -341,3 +341,26 @@ def test_fast_import_parent():
         )
     eq(sorted(os.listdir(export)),
        sorted(['foo', 'quux']))
+
+def test_mirror():
+    tmp = maketemp()
+    main_path = os.path.join(tmp, 'main.git')
+    mirror_path = os.path.join(tmp, 'mirror.git')
+    repository.init(path=main_path, template=False)
+    repository.init(path=mirror_path, template=False)
+    repository.fast_import(
+        git_dir=main_path,
+        commit_msg='foo initial bar',
+        committer='Mr. Unit Test <unit.test@example.com>',
+        files=[
+            ('foo', 'bar\n'),
+            ],
+        )
+    repository.mirror(main_path, mirror_path)
+    export = os.path.join(tmp, 'export')
+    repository.export(
+        git_dir=mirror_path,
+        path=export,
+        )
+    eq(os.listdir(export),
+       ['foo'])
