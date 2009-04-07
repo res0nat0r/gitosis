@@ -38,15 +38,24 @@ def init(
     if _git is None:
         _git = 'git'
 
+    if template is None:
+        template = resource_filename('gitosis.templates', 'default')
+
+
     util.mkdir(path, 0750)
     args = [
         _git,
         '--git-dir=.',
         'init',
         ]
-    if template is None:
-        template = resource_filename('gitosis.templates', 'default')
-    args.append('--template=%s' % template)
+        
+    hooks = []
+    if template:
+        args.append('--template=%s' % template)
+        template_hooks_dir = os.path.join(template, 'hooks')
+        if os.path.isdir(template_hooks_dir):
+            hooks = os.listdir(template_hooks_dir)
+
     returncode = subprocess.call(
         args=args,
         cwd=path,
@@ -55,16 +64,16 @@ def init(
         )
     if returncode != 0:
         raise GitInitError('exit status %d' % returncode)
+    
     hooks_dir = os.path.join(path, 'hooks')
     if not os.path.exists(hooks_dir):
         hooks_dir = os.path.join(path, '.git', 'hooks')
     if not os.path.exists(hooks_dir):
         raise
-    for tree in os.walk(os.path.join(template, 'hooks')):
-        for hook in tree[2]:
-            os.chmod(
-                os.path.join(hooks_dir, hook),
-                0755)
+    for hook in hooks:
+        os.chmod(
+            os.path.join(hooks_dir, hook),
+            0755)
 
 
 class GitFastImportError(GitError):
