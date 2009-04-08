@@ -12,6 +12,13 @@ from gitosis import util
 
 
 def push_mirrors(config, git_dir):
+    """
+    Apply a push with the mirror option to all mirrors defined in gitosis.conf
+    of the repository being updated
+    
+    @param config: ConfiParser object loaded with gitosis.conf
+    @param git_dir: Path the repository being updated. 
+    """
     log = logging.getLogger('gitosis.mirror.push')
     
     repository_dir = os.path.abspath(util.getRepositoryDir(config))
@@ -26,6 +33,16 @@ def push_mirrors(config, git_dir):
 
         
 def get_git_name(repository_dir, git_dir):
+    """
+    Guess the name of the repository used in gitosis.conf
+    from the name of the git directory name:
+    
+    /path/to/foo.git => foo
+    
+    @param repository_dir: path to gitosis directory of repository
+    @param git_dir: path to repository being updated. 
+    
+    """
     if git_dir.startswith(repository_dir):
         git_name = git_dir[len(repository_dir):]
     else:
@@ -37,6 +54,12 @@ def get_git_name(repository_dir, git_dir):
     return git_name
 
 def get_mirrors(config, git_name):
+    """
+    Get a repository mirror list from gitosis.conf.
+    
+    @param config: ConfigParser object
+    @param git_name: the name of the repository  
+    """
     try:
         mirrors = config.get('repo %s' % git_name, 'mirrors')
         for mirror in mirrors.split():
