@@ -70,10 +70,8 @@ def get_mirrors(config, git_name):
     
     mirror_sections = (s for s in config.sections() if s.startswith('mirror '))
     for section in mirror_sections:
-        print section
         try:
             repos = config.get(section, 'repos')
-            print repos
             if repos == 'all' or git_name in repos.split():
                 yield config.get(section, 'uri').strip() % git_name
         except NoOptionError:
