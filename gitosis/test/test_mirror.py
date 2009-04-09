@@ -1,4 +1,4 @@
-from nose.tools import eq_ as eq
+from nose.tools import eq_ as eq, ok_ as ok
 
 from ConfigParser import RawConfigParser
 
@@ -9,14 +9,35 @@ import os
 def get_config():
     cfg = RawConfigParser()
     cfg.add_section('repo foo')
+    cfg.set('repo foo', 'mirrors', '/var/bar /var/baz')
     return cfg
 
 def test_get_mirrors():
     cfg = get_config()
-    cfg.set('repo foo', 'mirrors', '/var/bar /var/baz')
-    mirrors = mirror.get_mirrors(cfg, 'foo')
-    eq('/var/bar', mirrors.next())
-    eq('/var/baz', mirrors.next())
+    cfg.add_section('mirror github')
+    cfg.set('mirror github', 'repos', 'foo bar')
+    cfg.set('mirror github', 'uri', 'git@github.com:res0nat0r/%s.git')
+    mirrors = list(mirror.get_mirrors(cfg, 'foo'))
+    ok('/var/bar' in mirrors)
+    ok('/var/baz' in mirrors)
+    ok('git@github.com:res0nat0r/foo.git' in mirrors)
+    eq(3, len(mirrors))
+    
+    mirrors = list(mirror.get_mirrors(cfg, 'bar'))
+    ok('git@github.com:res0nat0r/bar.git' in mirrors)
+    eq(1, len(mirrors))
+
+def test_get_mirrors_with_all():
+    cfg = get_config()
+    mirrors = list(mirror.get_mirrors(cfg, 'baz'))
+    eq(0, len(mirrors))
+    
+    cfg.add_section('mirror github')
+    cfg.set('mirror github', 'repos', 'all')
+    cfg.set('mirror github', 'uri', 'git@github.com:res0nat0r/%s.git')
+    mirrors = list(mirror.get_mirrors(cfg, 'baz'))
+    ok('git@github.com:res0nat0r/baz.git' in mirrors)
+    eq(1, len(mirrors))
     
 def test_get_git_name():
     eq('foo', mirror.get_git_name('/home/git/repository', '/home/git/repository/foo.git'))

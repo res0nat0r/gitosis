@@ -14,12 +14,12 @@ from gitosis import util
 def push_mirrors(config, git_dir):
     """
     Apply a push with the mirror option to all mirrors defined in gitosis.conf
-    of the repository being updated
+    of the repository being updated.
     
     @param config: ConfiParser object loaded with gitosis.conf
     @param git_dir: Path the repository being updated. 
     """
-    log = logging.getLogger('gitosis.mirror.push')
+    log = logging.getLogger('gitosis.mirror.push_mirrors')
     
     repository_dir = os.path.abspath(util.getRepositoryDir(config))
     git_dir = os.path.abspath(git_dir)
@@ -60,9 +60,23 @@ def get_mirrors(config, git_name):
     @param config: ConfigParser object
     @param git_name: the name of the repository  
     """
+    log = logging.getLogger('gitosis.mirror.get_mirrors')
     try:
         mirrors = config.get('repo %s' % git_name, 'mirrors')
         for mirror in mirrors.split():
             yield mirror
     except (NoSectionError, NoOptionError):
         pass
+    
+    mirror_sections = (s for s in config.sections() if s.startswith('mirror '))
+    for section in mirror_sections:
+        print section
+        try:
+            repos = config.get(section, 'repos')
+            print repos
+            if repos == 'all' or git_name in repos.split():
+                yield config.get(section, 'uri').strip() % git_name
+        except NoOptionError:
+            log.error('%s section is lacking the "repos" or "uri" settings.', section)
+        
+    
