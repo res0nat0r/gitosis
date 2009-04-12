@@ -72,7 +72,7 @@ def get_mirrors(config, git_name):
     for section in mirror_sections:
         try:
             repos = config.get(section, 'repos')
-            if repos == 'all' or git_name in repos.split():
+            if repos == '@all' or git_name in repos.split():
                 yield config.get(section, 'uri').strip() % git_name
         except NoOptionError:
             log.error('%s section is lacking the "repos" or "uri" settings.', section)

@@ -33,7 +33,7 @@ def test_get_mirrors_with_all():
     eq(0, len(mirrors))
     
     cfg.add_section('mirror github')
-    cfg.set('mirror github', 'repos', 'all')
+    cfg.set('mirror github', 'repos', '@all')
     cfg.set('mirror github', 'uri', 'git@github.com:res0nat0r/%s.git')
     mirrors = list(mirror.get_mirrors(cfg, 'baz'))
     ok('git@github.com:res0nat0r/baz.git' in mirrors)
