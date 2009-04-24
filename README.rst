@@ -85,7 +85,9 @@ the actual configuration file, and it will add the SSH public key to
 ``~/.ssh/authorized_keys`` with a ``command=`` option that restricts
 it to running ``gitosis-serve``. Run::
 
-	sudo -H -u git gitosis-init <FILENAME.pub
+	# sudo -H -u -s
+	$ git gitosis-init <FILENAME.pub
+	# exit
 	# (or just copy-paste the public key when prompted)
 
 then just ``git clone git@SERVER:gitosis-admin.git``, and you get a
