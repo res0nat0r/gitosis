@@ -58,7 +58,19 @@ domain). You may choose another location. Adjust to suit and run::
 	    git
 
 This command is known to work in Debian and Ubuntu. Your mileage may
-vary.
+vary.  Under CentOS (and presumably RedHat) execute the 
+following commands as root instead::
+
+  useradd \
+        -r \
+        -s /bin/sh \
+        -c 'git version control' \
+        -d /home/git \
+        git
+
+  mkdir -p /home/git
+
+  chown git:git /home/git
 
 You will need an SSH public key to continue. If you don't have one,
 you need to generate one. See the man page for ``ssh-keygen``, and you
