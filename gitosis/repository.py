@@ -73,8 +73,6 @@ def init(
         raise
     for hook in hooks:
         mode = os.stat(os.path.join(hooks_dir, hook))[ST_MODE]
-        print "%o" % (mode & 0755)
-        print "%s" % os.path.join(hooks_dir, hook)
         if not (mode & 0755) == 0755:
             os.chmod(
                 os.path.join(hooks_dir, hook),
