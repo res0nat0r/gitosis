@@ -11,6 +11,7 @@ from pkg_resources import resource_filename
 from cStringIO import StringIO
 from ConfigParser import RawConfigParser
 
+from stat import ST_MODE
 from gitosis import repository
 from gitosis import run_hook
 from gitosis import ssh
@@ -78,7 +79,9 @@ def init_admin_repository(
         path=git_dir,
         )
     hook = os.path.join(git_dir, 'hooks', 'post-update')
-    os.chmod(hook, 0755)
+    mode = os.stat(hook)[ST_MODE]
+    if not (mode & 0755) == 0755:
+        os.chmod(hook, 0755)
     if not repository.has_initial_commit(git_dir):
         log.info('Making initial commit...')
         # ConfigParser does not guarantee order, so jump through hoops
