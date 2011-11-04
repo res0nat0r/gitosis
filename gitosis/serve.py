@@ -141,7 +141,7 @@ def serve(
         p = topdir
         for segment in repopath.split(os.sep)[:-1]:
             p = os.path.join(p, segment)
-            util.mkdir(p, 0750)
+            util.mkdir(p, 0755)
 
         repository.init(path=fullpath)
         gitweb.set_descriptions(
