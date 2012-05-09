@@ -102,7 +102,7 @@ where you can configure who has access to what.
 	in place, and this will cause trouble. There will be a
 	workaround for that later on, but for now, always remember to
 	use ``-H`` if you're sudoing to the account. Alternatively, you
-    can use ``-i`` as above, which runs a full login shell.
+	can use ``-i`` as above, which runs a full login shell.
 
 You should always edit the configuration file via ``git``. The file
 symlinked to ``~/.gitosis.conf`` on the server will be overwritten
