@@ -24,7 +24,7 @@ more information.
 
 You can get ``gitosis`` via ``git`` by saying::
 
-    git clone git://eagain.net/gitosis
+    git clone git://github.com/res0nat0r/gitosis.git
 
 And install it via::
 
@@ -85,9 +85,9 @@ the actual configuration file, and it will add the SSH public key to
 ``~/.ssh/authorized_keys`` with a ``command=`` option that restricts
 it to running ``gitosis-serve``. Run::
 
-	# sudo -H -u -s
-	$ git gitosis-init <FILENAME.pub
-	# exit
+	# sudo -iu git
+	git $ gitosis-init <FILENAME.pub
+	git $ exit
 	# (or just copy-paste the public key when prompted)
 
 then just ``git clone git@SERVER:gitosis-admin.git``, and you get a
@@ -101,7 +101,8 @@ where you can configure who has access to what.
 	without ``-H``, ``sudo`` will leave the old value of ``HOME``
 	in place, and this will cause trouble. There will be a
 	workaround for that later on, but for now, always remember to
-	use ``-H`` if you're sudoing to the account.
+	use ``-H`` if you're sudoing to the account. Alternatively, you
+	can use ``-i`` as above, which runs a full login shell.
 
 You should always edit the configuration file via ``git``. The file
 symlinked to ``~/.gitosis.conf`` on the server will be overwritten
